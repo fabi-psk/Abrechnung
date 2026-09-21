@@ -24,11 +24,11 @@ Das Frontend laeuft standardmaessig unter `http://localhost:5173`.
 
 ## Frontend auf Vercel deployen
 
-Das Projekt enthaelt eine `vercel.json` in der Repo-Wurzel. Dadurch wird nur das Frontend gebaut:
+Vercel ist fuer `frontend` als Root Directory konfiguriert. Dadurch wird nur das Frontend gebaut:
 
-- Install Command: `cd frontend && npm install`
-- Build Command: `cd frontend && npm run build`
-- Output Directory: `frontend/dist`
+- Install Command: `npm install`
+- Build Command: `npm run build`
+- Output Directory: `dist`
 
 ## Backend
 
