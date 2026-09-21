@@ -22,6 +22,14 @@ npm run dev
 
 Das Frontend laeuft standardmaessig unter `http://localhost:5173`.
 
+## Frontend auf Vercel deployen
+
+Das Projekt enthaelt eine `vercel.json` in der Repo-Wurzel. Dadurch wird nur das Frontend gebaut:
+
+- Install Command: `cd frontend && npm install`
+- Build Command: `cd frontend && npm run build`
+- Output Directory: `frontend/dist`
+
 ## Backend
 
 Ein FastAPI-Grundgeruest ist vorhanden, wird fuer die aktuelle Version aber nicht benoetigt. Alle Berechnungen laufen im Frontend.
