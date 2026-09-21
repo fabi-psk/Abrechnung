@@ -57,6 +57,7 @@ export function EmployeeCard({
           placeholder="Name"
           type="text"
           value={employee.name}
+          onFocus={(event) => event.target.select()}
           onChange={(event) =>
             onChange(employee.id, { name: event.target.value })
           }
