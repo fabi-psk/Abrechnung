@@ -198,6 +198,28 @@ input.invalid,
   padding: 0.75rem 1rem;
 }
 
+.header-actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.preset-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.preset-buttons button {
+  min-height: 2.85rem;
+  border: 1px solid rgba(215, 168, 95, 0.32);
+  border-radius: 8px;
+  background: rgba(215, 168, 95, 0.13);
+  color: #ffe0a3;
+  font-size: 0.95rem;
+  font-weight: 850;
+  padding: 0.65rem 0.75rem;
+}
+
 .reset-feedback {
   margin-bottom: 1rem;
   border: 1px solid rgba(215, 168, 95, 0.58);
@@ -532,8 +554,12 @@ input.invalid,
     align-items: end;
   }
 
+  .header-actions {
+    min-width: 18rem;
+  }
+
   .reset-button {
-    width: auto;
+    width: 100%;
   }
 
   .section-heading {

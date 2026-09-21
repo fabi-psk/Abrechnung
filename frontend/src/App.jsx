@@ -18,12 +18,25 @@ const createEmployee = (index) => ({
 });
 
 const createInitialEmployees = () => [createEmployee(1), createEmployee(2)];
+const createEmployees = (count) =>
+  Array.from({ length: count }, (_, index) => createEmployee(index + 1));
+const createWeekdayEmployees = () => [
+  { ...createEmployee(1), startTime: "18:30" },
+  { ...createEmployee(2), startTime: "19:30" },
+];
+const createWeekendEmployees = () =>
+  ["18:30", "18:30", "19:30", "20:00", "20:30", "21:00"].map(
+    (startTime, index) => ({
+      ...createEmployee(index + 1),
+      startTime,
+    }),
+  );
 
 function App() {
   const [cashRevenue, setCashRevenue] = useState("");
   const [amountToSubmit, setAmountToSubmit] = useState("");
   const [employees, setEmployees] = useState(createInitialEmployees);
-  const [showResetFeedback, setShowResetFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
@@ -62,20 +75,30 @@ function App() {
     setCashRevenue("");
     setAmountToSubmit("");
     setEmployees(createInitialEmployees());
-    setShowResetFeedback(true);
+    setFeedbackMessage("Neue Abrechnung gestartet");
+  };
+
+  const applyWeekdayPreset = () => {
+    setEmployees(createWeekdayEmployees());
+    setFeedbackMessage("Wochentag-Vorlage geladen");
+  };
+
+  const applyWeekendPreset = () => {
+    setEmployees(createWeekendEmployees());
+    setFeedbackMessage("Wochenende-Vorlage geladen");
   };
 
   useEffect(() => {
-    if (!showResetFeedback) {
+    if (!feedbackMessage) {
       return undefined;
     }
 
     const timeoutId = window.setTimeout(() => {
-      setShowResetFeedback(false);
+      setFeedbackMessage("");
     }, 2200);
 
     return () => window.clearTimeout(timeoutId);
-  }, [showResetFeedback]);
+  }, [feedbackMessage]);
 
   return (
     <main className="app-shell">
@@ -84,14 +107,24 @@ function App() {
           <p className="eyebrow">Schicht- und Kassenabrechnung</p>
           <h1>Abrechnung</h1>
         </div>
-        <button className="reset-button" type="button" onClick={resetSettlement}>
-          Neue Abrechnung
-        </button>
+        <div className="header-actions">
+          <button className="reset-button" type="button" onClick={resetSettlement}>
+            Neue Abrechnung
+          </button>
+          <div className="preset-buttons" aria-label="Abrechnungsvorlage">
+            <button type="button" onClick={applyWeekdayPreset}>
+              Wochentag
+            </button>
+            <button type="button" onClick={applyWeekendPreset}>
+              Wochenende
+            </button>
+          </div>
+        </div>
       </header>
 
-      {showResetFeedback ? (
+      {feedbackMessage ? (
         <div className="reset-feedback" role="status">
-          Neue Abrechnung gestartet
+          {feedbackMessage}
         </div>
       ) : null}
 
