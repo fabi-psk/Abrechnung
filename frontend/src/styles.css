@@ -220,19 +220,6 @@ input.invalid,
   padding: 0.65rem 0.75rem;
 }
 
-.reset-feedback {
-  margin-bottom: 1rem;
-  border: 1px solid rgba(215, 168, 95, 0.58);
-  border-radius: 8px;
-  background: rgba(215, 168, 95, 0.18);
-  box-shadow: 0 0 0 3px rgba(215, 168, 95, 0.1);
-  color: #ffe0a3;
-  font-size: 1rem;
-  font-weight: 850;
-  padding: 0.85rem 1rem;
-  text-align: center;
-}
-
 .employee-list {
   display: grid;
   gap: 0.85rem;

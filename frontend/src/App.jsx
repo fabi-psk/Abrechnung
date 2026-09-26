@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { calculateSettlement } from "./lib/calculations";
@@ -36,7 +36,6 @@ function App() {
   const [cashRevenue, setCashRevenue] = useState("");
   const [amountToSubmit, setAmountToSubmit] = useState("");
   const [employees, setEmployees] = useState(createInitialEmployees);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
@@ -75,30 +74,15 @@ function App() {
     setCashRevenue("");
     setAmountToSubmit("");
     setEmployees(createInitialEmployees());
-    setFeedbackMessage("Neue Abrechnung gestartet");
   };
 
   const applyWeekdayPreset = () => {
     setEmployees(createWeekdayEmployees());
-    setFeedbackMessage("Wochentag-Vorlage geladen");
   };
 
   const applyWeekendPreset = () => {
     setEmployees(createWeekendEmployees());
-    setFeedbackMessage("Wochenende-Vorlage geladen");
   };
-
-  useEffect(() => {
-    if (!feedbackMessage) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setFeedbackMessage("");
-    }, 2200);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [feedbackMessage]);
 
   return (
     <main className="app-shell">
@@ -121,12 +105,6 @@ function App() {
           </div>
         </div>
       </header>
-
-      {feedbackMessage ? (
-        <div className="reset-feedback" role="status">
-          {feedbackMessage}
-        </div>
-      ) : null}
 
       <section className="amount-panel" aria-labelledby="cash-heading">
         <label className="field-label" htmlFor="cash-revenue">

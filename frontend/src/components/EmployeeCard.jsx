@@ -10,7 +10,7 @@ export function EmployeeCard({
   onChange,
   onRemove,
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const hasMissingTime = !employee.startTime || !employee.endTime;
   const employeeName = employee.name.trim() || `Mitarbeiter ${index + 1}`;
 
