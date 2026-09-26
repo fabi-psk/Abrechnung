@@ -190,11 +190,7 @@ function App() {
 
       <SettlementSummary settlement={settlement} />
 
-      <section className="finish-panel" aria-labelledby="finish-heading">
-        <div>
-          <p className="section-kicker">Fertigstellen</p>
-          <h2 id="finish-heading">Abrechnung fertigstellen</h2>
-        </div>
+      <section className="finish-panel">
         <button
           className="finish-button"
           disabled={finishStatus === "working"}
@@ -203,15 +199,6 @@ function App() {
         >
           Abrechnung fertigstellen
         </button>
-        <p className="finish-hint" role={finishStatus === "failed" ? "alert" : undefined}>
-          {finishStatus === "shared"
-            ? "PDF wurde an die Teilen-Funktion uebergeben."
-            : finishStatus === "downloaded"
-              ? "PDF wurde heruntergeladen und kann per WhatsApp verschickt werden."
-              : finishStatus === "failed"
-                ? "PDF konnte nicht erstellt werden. Bitte erneut versuchen."
-                : "Erstellt eine uebersichtliche PDF mit Zeiten, Stunden, Barlohn, Trinkgeld und Summen."}
-        </p>
       </section>
     </main>
   );

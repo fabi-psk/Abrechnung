@@ -430,12 +430,6 @@ input.invalid,
   padding: 0.8rem 1rem;
 }
 
-.finish-hint {
-  margin-bottom: 0;
-  color: #cbbfae;
-  font-size: 0.92rem;
-}
-
 .summary-header {
   display: grid;
   grid-template-columns: 1fr auto;
