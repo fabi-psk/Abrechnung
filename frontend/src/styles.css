@@ -98,7 +98,8 @@ h3 {
 
 .amount-panel,
 .employee-card,
-.summary-panel {
+.summary-panel,
+.finish-panel {
   border: 1px solid rgba(229, 199, 151, 0.16);
   border-radius: 8px;
   background: rgba(20, 18, 15, 0.82);
@@ -112,7 +113,8 @@ h3 {
 }
 
 .section-block,
-.summary-panel {
+.summary-panel,
+.finish-panel {
   margin-top: 1rem;
 }
 
@@ -410,6 +412,30 @@ input.invalid,
   padding: 1rem;
 }
 
+.finish-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.finish-button {
+  width: 100%;
+  min-height: 3.5rem;
+  border: 0;
+  border-radius: 8px;
+  background: #f0c987;
+  color: #17120e;
+  font-size: 1.05rem;
+  font-weight: 900;
+  padding: 0.8rem 1rem;
+}
+
+.finish-hint {
+  margin-bottom: 0;
+  color: #cbbfae;
+  font-size: 0.92rem;
+}
+
 .summary-header {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -565,7 +591,8 @@ input.invalid,
 
   .amount-panel,
   .employee-card,
-  .summary-panel {
+  .summary-panel,
+  .finish-panel {
     padding: 1.25rem;
   }
 

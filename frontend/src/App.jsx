@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { calculateSettlement } from "./lib/calculations";
+import { createSettlementPdf, shareOrDownloadPdf } from "./lib/pdfSettlement";
 import "./styles.css";
 
 const MIN_EMPLOYEES = 2;
@@ -36,6 +37,7 @@ function App() {
   const [cashRevenue, setCashRevenue] = useState("");
   const [amountToSubmit, setAmountToSubmit] = useState("");
   const [employees, setEmployees] = useState(createInitialEmployees);
+  const [finishStatus, setFinishStatus] = useState("idle");
 
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
@@ -82,6 +84,19 @@ function App() {
 
   const applyWeekendPreset = () => {
     setEmployees(createWeekendEmployees());
+  };
+
+  const finishSettlement = async () => {
+    setFinishStatus("working");
+
+    try {
+      const pdf = createSettlementPdf({ settlement, employees });
+      const result = await shareOrDownloadPdf(pdf);
+      setFinishStatus(result);
+    } catch (error) {
+      console.error(error);
+      setFinishStatus("failed");
+    }
   };
 
   return (
@@ -174,6 +189,30 @@ function App() {
       </section>
 
       <SettlementSummary settlement={settlement} />
+
+      <section className="finish-panel" aria-labelledby="finish-heading">
+        <div>
+          <p className="section-kicker">Fertigstellen</p>
+          <h2 id="finish-heading">Abrechnung fertigstellen</h2>
+        </div>
+        <button
+          className="finish-button"
+          disabled={finishStatus === "working"}
+          type="button"
+          onClick={finishSettlement}
+        >
+          Abrechnung fertigstellen
+        </button>
+        <p className="finish-hint" role={finishStatus === "failed" ? "alert" : undefined}>
+          {finishStatus === "shared"
+            ? "PDF wurde an die Teilen-Funktion uebergeben."
+            : finishStatus === "downloaded"
+              ? "PDF wurde heruntergeladen und kann per WhatsApp verschickt werden."
+              : finishStatus === "failed"
+                ? "PDF konnte nicht erstellt werden. Bitte erneut versuchen."
+                : "Erstellt eine uebersichtliche PDF mit Zeiten, Stunden, Barlohn, Trinkgeld und Summen."}
+        </p>
+      </section>
     </main>
   );
 }
