@@ -52,12 +52,20 @@ export function SettlementSummary({ settlement }) {
               value={formatCurrency(settlement.cashRevenue)}
             />
             <SummaryItem
+              label="Bereits ausgezahlter Lohn"
+              value={`+ ${formatCurrency(settlement.paidOutCashWagesTotal)}`}
+            />
+            <SummaryItem
+              label="Bargeld gesamt mit ausgezahltem Lohn"
+              value={formatCurrency(settlement.cashRevenueWithPaidOutWages)}
+            />
+            <SummaryItem
               label="Gesamt Abzugeben"
               value={formatCurrency(settlement.amountToSubmit)}
             />
             <SummaryItem
-              label="Bar ausgezahlte Löhne"
-              value={`- ${formatCurrency(settlement.cashWagesTotal)}`}
+              label="Noch auszuzahlende Barlöhne"
+              value={`- ${formatCurrency(settlement.openCashWagesTotal)}`}
               variant="danger"
             />
             <SummaryItem
@@ -84,12 +92,18 @@ export function SettlementSummary({ settlement }) {
                       <span>
                         Barlohn {formatCurrency(employeeResult.cashWage)}
                       </span>
+                      {employeeResult.wagePaidOut ? (
+                        <span>
+                          Bereits ausgezahlt{" "}
+                          {formatCurrency(employeeResult.cashWage)}
+                        </span>
+                      ) : null}
                       <strong className="tip-value">
                         Trinkgeld {formatCurrency(employeeResult.tip)}
                       </strong>
                       <strong>
-                        Gesamtauszahlung{" "}
-                        {formatCurrency(employeeResult.totalCashPayout)}
+                        Noch auszuzahlen{" "}
+                        {formatCurrency(employeeResult.remainingCashPayout)}
                       </strong>
                     </>
                   ) : (

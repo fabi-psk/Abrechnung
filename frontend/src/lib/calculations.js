@@ -8,16 +8,19 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
       ? parsePositiveNumber(employee.hourlyWage)
       : 0;
     const cashWage = hours * hourlyWage;
+    const wagePaidOut = Boolean(employee.paidInCash && employee.wagePaidOut);
 
     return {
       id: employee.id,
       name: employee.name.trim() || "Ohne Namen",
       paidInCash: employee.paidInCash,
+      wagePaidOut,
       hours,
       hourlyWage,
       cashWage,
       tip: 0,
       totalCashPayout: cashWage,
+      remainingCashPayout: wagePaidOut ? 0 : cashWage,
     };
   });
 
@@ -25,12 +28,19 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
     (sum, employee) => sum + employee.cashWage,
     0,
   );
+  const paidOutCashWagesTotal = employeeResults.reduce(
+    (sum, employee) => sum + (employee.wagePaidOut ? employee.cashWage : 0),
+    0,
+  );
+  const openCashWagesTotal = cashWagesTotal - paidOutCashWagesTotal;
+  const cashRevenueWithPaidOutWages =
+    cashRevenueAmount + paidOutCashWagesTotal;
   const totalHours = employeeResults.reduce(
     (sum, employee) => sum + employee.hours,
     0,
   );
-  const totalTips = cashRevenueAmount - amountToSubmitValue;
-  const amountToHandOver = amountToSubmitValue - cashWagesTotal;
+  const totalTips = cashRevenueWithPaidOutWages - amountToSubmitValue;
+  const amountToHandOver = amountToSubmitValue - openCashWagesTotal;
   const canCalculateTips = totalHours > 0 && totalTips >= 0;
   const tipsPerHour = canCalculateTips ? totalTips / totalHours : 0;
 
@@ -41,23 +51,27 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
       ...employee,
       tip,
       totalCashPayout: employee.cashWage + tip,
+      remainingCashPayout:
+        (employee.wagePaidOut ? 0 : employee.cashWage) + tip,
     };
   });
 
   return {
     cashRevenue: cashRevenueAmount,
+    cashRevenueWithPaidOutWages,
     amountToSubmit: amountToSubmitValue,
     amountToHandOver,
     cashWagesTotal,
+    paidOutCashWagesTotal,
+    openCashWagesTotal,
     totalTips,
     totalHours,
     tipsPerHour,
     employeeResults: resultsWithTips,
     warnings: createWarnings({
-      cashRevenue: cashRevenueAmount,
+      cashRevenueWithPaidOutWages,
       amountToSubmit: amountToSubmitValue,
       amountToHandOver,
-      cashWagesTotal,
       employees,
       totalHours,
     }),
@@ -113,7 +127,7 @@ function parsePositiveNumber(value) {
 }
 
 function createWarnings({
-  cashRevenue,
+  cashRevenueWithPaidOutWages,
   amountToSubmit,
   amountToHandOver,
   employees,
@@ -121,15 +135,15 @@ function createWarnings({
 }) {
   const warnings = [];
 
-  if (amountToSubmit > cashRevenue) {
+  if (amountToSubmit > cashRevenueWithPaidOutWages) {
     warnings.push(
-      "Gesamt Abzugeben ist größer als Bargeld gesamt.",
+      "Gesamt Abzugeben ist größer als Bargeld gesamt mit ausgezahltem Lohn.",
     );
   }
 
   if (amountToHandOver < 0) {
     warnings.push(
-      "Die Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
+      "Die offenen Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
     );
   }
 

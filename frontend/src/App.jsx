@@ -27,6 +27,7 @@ const createEmployee = (index) => ({
   startTime: "",
   endTime: "",
   paidInCash: false,
+  wagePaidOut: false,
   hourlyWage: "",
 });
 
@@ -49,6 +50,7 @@ function App() {
   const [employees, setEmployees] = useState(createInitialEmployees);
   const [staffMembers, setStaffMembers] = useState(loadStaffMembers);
   const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
+  const [expandedEmployeeId, setExpandedEmployeeId] = useState(null);
   const [activePreset, setActivePreset] = useState(null);
   const [finishStatus, setFinishStatus] = useState("idle");
   const [printStatus, setPrintStatus] = useState("idle");
@@ -115,6 +117,7 @@ function App() {
       name: selectedStaffMember.name,
       hourlyWage: formatHourlyRateInput(selectedStaffMember.hourlyRate),
       paidInCash: selectedStaffMember.paidCash,
+      wagePaidOut: false,
     });
   };
 
@@ -136,6 +139,7 @@ function App() {
 
       return currentEmployees.filter((employee) => employee.id !== id);
     });
+    setExpandedEmployeeId((currentId) => (currentId === id ? null : currentId));
   };
 
   const resetSettlement = () => {
@@ -150,17 +154,26 @@ function App() {
     setCashRevenue("");
     setAmountToSubmit("");
     setEmployees(createInitialEmployees());
+    setExpandedEmployeeId(null);
     setActivePreset(null);
   };
 
   const applyWeekdayPreset = () => {
     setEmployees(createWeekdayEmployees());
+    setExpandedEmployeeId(null);
     setActivePreset("weekday");
   };
 
   const applyWeekendPreset = () => {
     setEmployees(createWeekendEmployees());
+    setExpandedEmployeeId(null);
     setActivePreset("weekend");
+  };
+
+  const toggleEmployeeCard = (employeeId) => {
+    setExpandedEmployeeId((currentId) =>
+      currentId === employeeId ? null : employeeId,
+    );
   };
 
   const finishSettlement = async () => {
@@ -321,6 +334,7 @@ function App() {
               employee={employee}
               index={index}
               canRemove={employees.length > MIN_EMPLOYEES}
+              isExpanded={expandedEmployeeId === employee.id}
               result={settlement.employeeResults.find(
                 (item) => item.id === employee.id,
               )}
@@ -328,6 +342,7 @@ function App() {
               onChange={updateEmployee}
               onRemove={removeEmployee}
               onSelectStaffMember={selectStaffMember}
+              onToggle={toggleEmployeeCard}
             />
           ))}
         </div>

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { formatCurrency, formatHours } from "../lib/formatters";
 import { TimeSelect } from "./TimeSelect";
 
@@ -6,13 +5,14 @@ export function EmployeeCard({
   employee,
   index,
   canRemove,
+  isExpanded,
   result,
   staffMembers,
   onChange,
   onRemove,
   onSelectStaffMember,
+  onToggle,
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const hasMissingTime = !employee.startTime || !employee.endTime;
   const employeeName = employee.name.trim() || `Mitarbeiter ${index + 1}`;
   const selectedStaffMemberExists = staffMembers.some(
@@ -27,26 +27,26 @@ export function EmployeeCard({
       <div className="employee-card-header">
         <div className="employee-card-title">
           <h3>{employeeName}</h3>
-          {isCollapsed && !hasMissingTime ? (
+          {!isExpanded && !hasMissingTime ? (
             <span>{formatHours(result?.hours ?? 0)}</span>
           ) : null}
         </div>
         <button
           className="icon-toggle"
           type="button"
-          aria-expanded={!isCollapsed}
+          aria-expanded={isExpanded}
           aria-label={
-            isCollapsed
-              ? `${employeeName} ausklappen`
-              : `${employeeName} zuklappen`
+            isExpanded
+              ? `${employeeName} zuklappen`
+              : `${employeeName} ausklappen`
           }
-          onClick={() => setIsCollapsed((currentValue) => !currentValue)}
+          onClick={() => onToggle(employee.id)}
         >
           <span className="chevron" aria-hidden="true" />
         </button>
       </div>
 
-      {isCollapsed ? null : (
+      {!isExpanded ? null : (
         <>
           <label className="field-label" htmlFor={`staff-member-${employee.id}`}>
             <select
@@ -104,7 +104,10 @@ export function EmployeeCard({
           checked={employee.paidInCash}
           type="checkbox"
           onChange={(event) =>
-            onChange(employee.id, { paidInCash: event.target.checked })
+            onChange(employee.id, {
+              paidInCash: event.target.checked,
+              wagePaidOut: event.target.checked ? employee.wagePaidOut : false,
+            })
           }
         />
         <span>Lohn wird bar ausgezahlt</span>
@@ -112,6 +115,18 @@ export function EmployeeCard({
 
       {employee.paidInCash ? (
         <div className="cash-wage-block">
+          <label className="check-row" htmlFor={`wage-paid-out-${employee.id}`}>
+            <input
+              id={`wage-paid-out-${employee.id}`}
+              checked={Boolean(employee.wagePaidOut)}
+              type="checkbox"
+              onChange={(event) =>
+                onChange(employee.id, { wagePaidOut: event.target.checked })
+              }
+            />
+            <span>Lohn wurde ausgezahlt</span>
+          </label>
+
           <label className="field-label" htmlFor={`hourly-wage-${employee.id}`}>
             Stundenlohn
             <input

@@ -48,8 +48,19 @@ export function createSettlementPdf({ settlement, employees }) {
 
   const summaryRows = [
     ["Bargeld gesamt", formatCurrencyForPdf(settlement.cashRevenue)],
+    [
+      "Bereits ausgezahlter Lohn",
+      formatCurrencyForPdf(settlement.paidOutCashWagesTotal),
+    ],
+    [
+      "Bargeld gesamt mit Lohn",
+      formatCurrencyForPdf(settlement.cashRevenueWithPaidOutWages),
+    ],
     ["Gesamt Abzugeben", formatCurrencyForPdf(settlement.amountToSubmit)],
-    ["Bar ausgezahlte Loehne", formatCurrencyForPdf(settlement.cashWagesTotal)],
+    [
+      "Noch auszuzahlende Barloehne",
+      formatCurrencyForPdf(settlement.openCashWagesTotal),
+    ],
     ["Abzugeben nach Lohn", formatCurrencyForPdf(settlement.amountToHandOver)],
     ["Trinkgeld gesamt", formatCurrencyForPdf(settlement.totalTips)],
     ["Trinkgeld pro Stunde", formatCurrencyForPdf(settlement.tipsPerHour)],
@@ -75,9 +86,10 @@ export function createSettlementPdf({ settlement, employees }) {
       endTime: sourceEmployee?.endTime || "-",
       hours: formatHoursForPdf(result.hours),
       paidInCash: result.paidInCash ? "Ja" : "Nein",
+      wagePaidOut: result.wagePaidOut ? "Ja" : "Nein",
       cashWage: formatCurrencyForPdf(result.cashWage),
       tip: formatCurrencyForPdf(result.tip),
-      payout: formatCurrencyForPdf(result.totalCashPayout),
+      payout: formatCurrencyForPdf(result.remainingCashPayout),
     });
   });
 
@@ -112,6 +124,15 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
   writer.space(5);
 
   writer.heading("ABZUGEBEN");
+  writer.row("Bargeld gesamt:", formatCurrencyForPdf(settlement.cashRevenue));
+  writer.row(
+    "+ ausgez. Lohn:",
+    formatCurrencyForPdf(settlement.paidOutCashWagesTotal),
+  );
+  writer.row(
+    "Berechnet mit:",
+    formatCurrencyForPdf(settlement.cashRevenueWithPaidOutWages),
+  );
   writer.row("Ausgangsbetrag:", formatCurrencyForPdf(settlement.amountToSubmit));
   writer.space(7);
 
@@ -130,6 +151,9 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
 
     if (result.paidInCash) {
       writer.row("Barlohn:", formatCurrencyForPdf(result.cashWage), { indent: 8 });
+      if (result.wagePaidOut) {
+        writer.row("Bereits ausgezahlt:", "Ja", { indent: 8 });
+      }
     }
 
     if (index < settlement.employeeResults.length - 1) {
@@ -140,6 +164,10 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
   writer.space(5);
   writer.separator();
   writer.row("Barlohn gesamt:", formatCurrencyForPdf(settlement.cashWagesTotal), {
+    boldValue: true,
+  });
+  writer.row("Bereits ausgezahlt:", formatCurrencyForPdf(settlement.paidOutCashWagesTotal));
+  writer.row("Noch auszuzahlen:", formatCurrencyForPdf(settlement.openCashWagesTotal), {
     boldValue: true,
   });
   writer.space(8);
@@ -339,7 +367,7 @@ function drawTableHeader(writer, pageIndex, y) {
     ["Barlohn", 300],
     ["TG", 365],
     ["Auszahlung", 430],
-    ["Lohn bar?", 505],
+    ["Ausgez.?", 505],
   ].forEach(([label, x]) => {
     writer.text(pageIndex, label, x, y + 13, 8, { bold: true });
   });
@@ -358,7 +386,7 @@ function drawEmployeeRow(writer, pageIndex, row) {
     [row.cashWage, 300, 9],
     [row.tip, 365, 9],
     [row.payout, 430, 9, true],
-    [row.paidInCash, 505, 9],
+    [row.wagePaidOut, 505, 9],
   ].forEach(([value, x, size, bold]) => {
     writer.text(pageIndex, value, x, row.y + 18, size, { bold });
   });
