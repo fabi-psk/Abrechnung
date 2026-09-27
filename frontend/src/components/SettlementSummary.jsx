@@ -8,7 +8,6 @@ export function SettlementSummary({ settlement }) {
     <section className="summary-panel" aria-labelledby="summary-heading">
       <div className="summary-header">
         <div>
-          <p className="section-kicker">Ergebnis</p>
           <h2 id="summary-heading">Abrechnung</h2>
         </div>
         <button
@@ -82,9 +81,6 @@ export function SettlementSummary({ settlement }) {
                 <div className="payout-values">
                   {employeeResult.paidInCash ? (
                     <>
-                      <span>
-                        Stundenlohn {formatCurrency(employeeResult.hourlyWage)}
-                      </span>
                       <span>
                         Barlohn {formatCurrency(employeeResult.cashWage)}
                       </span>

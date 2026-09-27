@@ -256,7 +256,6 @@ function App() {
       <section className="section-block" aria-labelledby="employees-heading">
         <div className="section-heading">
           <div>
-            <p className="section-kicker">Team</p>
             <h2 id="employees-heading">Mitarbeiter ({employees.length})</h2>
           </div>
           <button

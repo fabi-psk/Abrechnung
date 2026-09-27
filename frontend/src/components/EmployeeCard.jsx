@@ -48,16 +48,6 @@ export function EmployeeCard({
 
       {isCollapsed ? null : (
         <>
-          {canRemove ? (
-            <button
-              className="text-button"
-              type="button"
-              onClick={() => onRemove(employee.id)}
-            >
-              Entfernen
-            </button>
-          ) : null}
-
       <label className="field-label" htmlFor={`staff-member-${employee.id}`}>
         Mitarbeiter
         <select
@@ -145,6 +135,16 @@ export function EmployeeCard({
           </div>
         </div>
       ) : null}
+
+          {canRemove ? (
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => onRemove(employee.id)}
+            >
+              Entfernen
+            </button>
+          ) : null}
         </>
       )}
     </article>
