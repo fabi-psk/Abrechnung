@@ -62,7 +62,7 @@ export function SettlementSummary({ settlement }) {
             />
             <SummaryItem
               label="Abzugeben nach Lohn"
-              value={formatCurrency(Math.max(settlement.amountToHandOver, 0))}
+              value={formatCurrency(settlement.amountToHandOver)}
               variant="success"
             />
             <SummaryItem

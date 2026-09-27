@@ -47,7 +47,7 @@ export function createSettlementPdf({ settlement, employees }) {
     ["Bargeld gesamt", formatCurrencyForPdf(settlement.cashRevenue)],
     ["Gesamt Abzugeben", formatCurrencyForPdf(settlement.amountToSubmit)],
     ["Bar ausgezahlte Loehne", formatCurrencyForPdf(settlement.cashWagesTotal)],
-    ["Abzugeben nach Lohn", formatCurrencyForPdf(Math.max(settlement.amountToHandOver, 0))],
+    ["Abzugeben nach Lohn", formatCurrencyForPdf(settlement.amountToHandOver)],
     ["Trinkgeld gesamt", formatCurrencyForPdf(settlement.totalTips)],
     ["Trinkgeld pro Stunde", formatCurrencyForPdf(settlement.tipsPerHour)],
     ["Gesamtstunden", formatHoursForPdf(settlement.totalHours)],

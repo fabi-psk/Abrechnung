@@ -129,7 +129,7 @@ function createWarnings({
 
   if (amountToHandOver < 0) {
     warnings.push(
-      "Die Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn kann nicht berechnet werden.",
+      "Die Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
     );
   }
 
