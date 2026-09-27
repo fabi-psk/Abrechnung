@@ -48,28 +48,28 @@ export function EmployeeCard({
 
       {isCollapsed ? null : (
         <>
-      <label className="field-label" htmlFor={`staff-member-${employee.id}`}>
-        Mitarbeiter
-        <select
-          id={`staff-member-${employee.id}`}
-          disabled={staffMembers.length === 0}
-          value={selectedStaffMemberId}
-          onChange={(event) =>
-            onSelectStaffMember(employee.id, event.target.value)
-          }
-        >
-          <option value="">
-            {staffMembers.length === 0
-              ? "Keine Mitarbeiter gespeichert"
-              : "Mitarbeiter auswählen"}
-          </option>
-          {staffMembers.map((staffMember) => (
-            <option key={staffMember.id} value={staffMember.id}>
-              {staffMember.name}
-            </option>
-          ))}
-        </select>
-      </label>
+          <label className="field-label" htmlFor={`staff-member-${employee.id}`}>
+            <select
+              id={`staff-member-${employee.id}`}
+              aria-label="Mitarbeiter auswählen"
+              disabled={staffMembers.length === 0}
+              value={selectedStaffMemberId}
+              onChange={(event) =>
+                onSelectStaffMember(employee.id, event.target.value)
+              }
+            >
+              <option value="">
+                {staffMembers.length === 0
+                  ? "Keine Mitarbeiter gespeichert"
+                  : "Mitarbeiter auswählen"}
+              </option>
+              {staffMembers.map((staffMember) => (
+                <option key={staffMember.id} value={staffMember.id}>
+                  {staffMember.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
       <div className="time-grid">
         <TimeSelect

@@ -162,7 +162,7 @@ export function StaffManager({
 
         {error ? <p className="field-hint">{error}</p> : null}
 
-        <button className="add-button staff-submit-button" type="submit">
+        <button className="add-button save-button staff-submit-button" type="submit">
           Mitarbeiter speichern
         </button>
       </form>
@@ -245,7 +245,7 @@ export function StaffManager({
 
         <div className="staff-edit-actions">
           <button
-            className="add-button"
+            className="add-button save-button"
             disabled={!selectedStaffMember}
             type="submit"
           >
