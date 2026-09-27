@@ -1,5 +1,13 @@
 const STORAGE_KEY = "bar-abrechnung.staff";
 const DEFAULT_STAFF_SEED_KEY = "bar-abrechnung.staff-defaults-seeded";
+const HENRY_DEFAULT_SEED_KEY = "bar-abrechnung.staff-default-henry-seeded";
+
+const HENRY_DEFAULT_STAFF_MEMBER = {
+  id: "default-henry",
+  name: "Henry",
+  hourlyRate: 0,
+  paidCash: false,
+};
 
 const DEFAULT_STAFF_MEMBERS = [
   { id: "default-fabi", name: "Fabi", hourlyRate: 15, paidCash: true },
@@ -13,6 +21,7 @@ const DEFAULT_STAFF_MEMBERS = [
   { id: "default-helen", name: "Helen", hourlyRate: 0, paidCash: false },
   { id: "default-antonia", name: "Antonia", hourlyRate: 0, paidCash: false },
   { id: "default-calvin", name: "Calvin", hourlyRate: 0, paidCash: false },
+  HENRY_DEFAULT_STAFF_MEMBER,
   { id: "default-luise", name: "Luise", hourlyRate: 0, paidCash: false },
 ];
 
@@ -87,7 +96,7 @@ function seedDefaultStaffMembers(staffMembers) {
     window.localStorage.getItem(DEFAULT_STAFF_SEED_KEY) === "true";
 
   if (defaultsAlreadySeeded) {
-    return staffMembers;
+    return seedHenryDefaultStaffMember(staffMembers);
   }
 
   window.localStorage.setItem(DEFAULT_STAFF_SEED_KEY, "true");
@@ -99,7 +108,29 @@ function seedDefaultStaffMembers(staffMembers) {
     (staffMember) => !existingNames.has(staffMember.name.toLowerCase()),
   );
 
-  return [...staffMembers, ...missingDefaults];
+  return seedHenryDefaultStaffMember([...staffMembers, ...missingDefaults]);
+}
+
+function seedHenryDefaultStaffMember(staffMembers) {
+  const henryAlreadySeeded =
+    window.localStorage.getItem(HENRY_DEFAULT_SEED_KEY) === "true";
+
+  if (henryAlreadySeeded) {
+    return staffMembers;
+  }
+
+  window.localStorage.setItem(HENRY_DEFAULT_SEED_KEY, "true");
+
+  const hasHenry = staffMembers.some(
+    (staffMember) =>
+      staffMember.name.toLowerCase() === HENRY_DEFAULT_STAFF_MEMBER.name.toLowerCase(),
+  );
+
+  if (hasHenry) {
+    return staffMembers;
+  }
+
+  return [...staffMembers, HENRY_DEFAULT_STAFF_MEMBER];
 }
 
 function createId() {

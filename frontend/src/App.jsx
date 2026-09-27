@@ -156,6 +156,12 @@ function App() {
   };
 
   const finishSettlement = async () => {
+    const shouldFinish = window.confirm("Abrechnunug wirklich fertigstellen?");
+
+    if (!shouldFinish) {
+      return;
+    }
+
     setFinishStatus("working");
 
     try {
