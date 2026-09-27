@@ -23,7 +23,7 @@ export function StaffManager({
     }
 
     if (parsedHourlyRate === null) {
-      setError("Bitte einen gueltigen Stundenlohn eintragen.");
+      setError("Bitte einen gültigen Stundenlohn eintragen.");
       return;
     }
 
@@ -44,12 +44,12 @@ export function StaffManager({
     );
 
     if (!selectedStaffMember) {
-      setError("Bitte einen Mitarbeiter auswaehlen.");
+      setError("Bitte einen Mitarbeiter auswählen.");
       return;
     }
 
     const shouldDelete = window.confirm(
-      `Moechtest du ${selectedStaffMember.name} wirklich loeschen?`,
+      `Möchtest du ${selectedStaffMember.name} wirklich löschen?`,
     );
 
     if (shouldDelete) {
@@ -130,7 +130,7 @@ export function StaffManager({
             <option value="">
               {staffMembers.length === 0
                 ? "Keine Mitarbeiter gespeichert"
-                : "Mitarbeiter auswaehlen"}
+                : "Mitarbeiter auswählen"}
             </option>
             {staffMembers.map((staffMember) => (
               <option key={staffMember.id} value={staffMember.id}>

@@ -21,28 +21,28 @@ export function loadStaffMembers() {
     const storedValue = window.localStorage.getItem(STORAGE_KEY);
 
     if (!storedValue) {
-      return seedDefaultStaffMembers([]);
+      return sortStaffMembers(seedDefaultStaffMembers([]));
     }
 
     const parsedValue = JSON.parse(storedValue);
 
     if (!Array.isArray(parsedValue)) {
-      return seedDefaultStaffMembers([]);
+      return sortStaffMembers(seedDefaultStaffMembers([]));
     }
 
     const storedStaffMembers = parsedValue
       .map(normalizeStaffMember)
       .filter((staffMember) => staffMember !== null);
 
-    return seedDefaultStaffMembers(storedStaffMembers);
+    return sortStaffMembers(seedDefaultStaffMembers(storedStaffMembers));
   } catch (error) {
     console.error("Mitarbeiter konnten nicht geladen werden.", error);
-    return seedDefaultStaffMembers([]);
+    return sortStaffMembers(seedDefaultStaffMembers([]));
   }
 }
 
 export function saveStaffMembers(staffMembers) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(staffMembers));
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sortStaffMembers(staffMembers)));
 }
 
 export function createStaffMember({ name, hourlyRate, paidCash }) {
@@ -52,6 +52,14 @@ export function createStaffMember({ name, hourlyRate, paidCash }) {
     hourlyRate,
     paidCash,
   };
+}
+
+export function sortStaffMembers(staffMembers) {
+  return [...staffMembers].sort((firstStaffMember, secondStaffMember) =>
+    firstStaffMember.name.localeCompare(secondStaffMember.name, "de", {
+      sensitivity: "base",
+    }),
+  );
 }
 
 function normalizeStaffMember(value) {

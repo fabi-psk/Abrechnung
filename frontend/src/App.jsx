@@ -8,6 +8,7 @@ import {
   createStaffMember,
   loadStaffMembers,
   saveStaffMembers,
+  sortStaffMembers,
 } from "./lib/staffStorage";
 import "./styles.css";
 
@@ -64,10 +65,12 @@ function App() {
   };
 
   const addStaffMember = (staffMemberInput) => {
-    setStaffMembers((currentStaffMembers) => [
-      ...currentStaffMembers,
-      createStaffMember(staffMemberInput),
-    ]);
+    setStaffMembers((currentStaffMembers) =>
+      sortStaffMembers([
+        ...currentStaffMembers,
+        createStaffMember(staffMemberInput),
+      ]),
+    );
   };
 
   const deleteStaffMember = (staffMemberId) => {
