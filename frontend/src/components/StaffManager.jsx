@@ -119,7 +119,7 @@ export function StaffManager({
           <input
             id="staff-name"
             autoComplete="name"
-            placeholder="Max Mustermann"
+            placeholder="Name"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -132,7 +132,11 @@ export function StaffManager({
             checked={paidCash}
             type="checkbox"
             onChange={(event) => {
-              setPaidCash(event.target.checked);
+              const isPaidCash = event.target.checked;
+              setPaidCash(isPaidCash);
+              if (isPaidCash && !hourlyRate.trim()) {
+                setHourlyRate("15");
+              }
               setError("");
             }}
           />
