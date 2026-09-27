@@ -115,9 +115,9 @@ export function StaffManager({
 
       <form className="staff-form" onSubmit={handleSubmit}>
         <label className="field-label" htmlFor="staff-name">
-          Name
           <input
             id="staff-name"
+            aria-label="Name"
             autoComplete="name"
             placeholder="Name"
             type="text"
