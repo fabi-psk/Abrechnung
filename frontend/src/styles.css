@@ -224,7 +224,8 @@ input.invalid,
   padding: 0.65rem 0.75rem;
 }
 
-.preset-buttons button[aria-expanded="true"] {
+.preset-buttons button[aria-expanded="true"],
+.preset-buttons button[aria-pressed="true"] {
   background: #d7a85f;
   color: #17120e;
 }

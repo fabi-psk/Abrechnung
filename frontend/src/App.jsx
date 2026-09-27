@@ -45,6 +45,7 @@ function App() {
   const [employees, setEmployees] = useState(createInitialEmployees);
   const [staffMembers, setStaffMembers] = useState(loadStaffMembers);
   const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
+  const [activePreset, setActivePreset] = useState(null);
   const [finishStatus, setFinishStatus] = useState("idle");
 
   useEffect(() => {
@@ -141,14 +142,17 @@ function App() {
     setCashRevenue("");
     setAmountToSubmit("");
     setEmployees(createInitialEmployees());
+    setActivePreset(null);
   };
 
   const applyWeekdayPreset = () => {
     setEmployees(createWeekdayEmployees());
+    setActivePreset("weekday");
   };
 
   const applyWeekendPreset = () => {
     setEmployees(createWeekendEmployees());
+    setActivePreset("weekend");
   };
 
   const finishSettlement = async () => {
@@ -172,10 +176,18 @@ function App() {
             Neue Abrechnung
           </button>
           <div className="preset-buttons" aria-label="Abrechnungsvorlage">
-            <button type="button" onClick={applyWeekdayPreset}>
+            <button
+              aria-pressed={activePreset === "weekday"}
+              type="button"
+              onClick={applyWeekdayPreset}
+            >
               Wochentag
             </button>
-            <button type="button" onClick={applyWeekendPreset}>
+            <button
+              aria-pressed={activePreset === "weekend"}
+              type="button"
+              onClick={applyWeekendPreset}
+            >
               Wochenende
             </button>
             <button
