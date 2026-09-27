@@ -56,6 +56,9 @@ function App() {
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
     [cashRevenue, amountToSubmit, employees],
   );
+  const hasMissingEmployeeTimes = employees.some(
+    (employee) => !employee.startTime || !employee.endTime,
+  );
 
   const updateEmployee = (id, updates) => {
     setEmployees((currentEmployees) =>
@@ -175,7 +178,9 @@ function App() {
   };
 
   const finishButtonLabel =
-    finishStatus === "working"
+    hasMissingEmployeeTimes
+      ? "Zeiten vollständig eintragen"
+      : finishStatus === "working"
       ? "PDF wird erstellt..."
       : finishStatus === "shared"
         ? "PDF geteilt"
@@ -303,7 +308,7 @@ function App() {
       <section className="finish-panel">
         <button
           className="finish-button"
-          disabled={finishStatus === "working"}
+          disabled={finishStatus === "working" || hasMissingEmployeeTimes}
           type="button"
           onClick={finishSettlement}
         >

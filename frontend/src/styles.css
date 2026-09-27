@@ -191,8 +191,9 @@ input.invalid,
 }
 
 .add-button.save-button {
-  background: #4ade80;
-  color: #0f2417;
+  border: 1px solid rgba(74, 222, 128, 0.42);
+  background: rgba(22, 101, 52, 0.28);
+  color: #86efac;
 }
 
 .reset-button {
