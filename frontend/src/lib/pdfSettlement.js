@@ -286,8 +286,8 @@ function createReceiptPdfWriter() {
       });
     },
     separator() {
-      commands.push({ type: "line", y: y + 3 });
-      y += 9;
+      commands.push({ type: "line", y: y + 5 });
+      y += 12;
     },
     space(height) {
       y += height;
