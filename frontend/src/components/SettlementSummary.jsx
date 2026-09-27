@@ -58,7 +58,8 @@ export function SettlementSummary({ settlement }) {
             />
             <SummaryItem
               label="Bar ausgezahlte Löhne"
-              value={formatCurrency(settlement.cashWagesTotal)}
+              value={`- ${formatCurrency(settlement.cashWagesTotal)}`}
+              variant="danger"
             />
             <SummaryItem
               label="Abzugeben nach Lohn"
@@ -111,8 +112,15 @@ export function SettlementSummary({ settlement }) {
 }
 
 function SummaryItem({ label, value, variant }) {
+  const className =
+    variant === "success"
+      ? "summary-item-success"
+      : variant === "danger"
+        ? "summary-item-danger"
+        : undefined;
+
   return (
-    <div className={variant === "success" ? "summary-item-success" : undefined}>
+    <div className={className}>
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
