@@ -67,15 +67,6 @@ export function TimeSelect({ id, label, value, invalid, onChange }) {
             ))}
           </select>
         </label>
-
-        <button
-          className="time-clear-button"
-          disabled={!value}
-          type="button"
-          onClick={() => onChange("")}
-        >
-          Löschen
-        </button>
       </div>
     </fieldset>
   );
