@@ -38,14 +38,14 @@ export function StaffManager({
     event.preventDefault();
 
     const trimmedName = name.trim();
-    const parsedHourlyRate = parsePositiveNumber(hourlyRate);
+    const parsedHourlyRate = paidCash ? parsePositiveNumber(hourlyRate) : 0;
 
     if (!trimmedName) {
       setError("Bitte einen Namen eintragen.");
       return;
     }
 
-    if (parsedHourlyRate === null) {
+    if (paidCash && parsedHourlyRate === null) {
       setError("Bitte einen gültigen Stundenlohn eintragen.");
       return;
     }
@@ -70,14 +70,16 @@ export function StaffManager({
     }
 
     const trimmedName = editName.trim();
-    const parsedHourlyRate = parsePositiveNumber(editHourlyRate);
+    const parsedHourlyRate = editPaidCash
+      ? parsePositiveNumber(editHourlyRate)
+      : 0;
 
     if (!trimmedName) {
       setEditError("Bitte einen Namen eintragen.");
       return;
     }
 
-    if (parsedHourlyRate === null) {
+    if (editPaidCash && parsedHourlyRate === null) {
       setEditError("Bitte einen gültigen Stundenlohn eintragen.");
       return;
     }
@@ -108,10 +110,7 @@ export function StaffManager({
   return (
     <section className="staff-panel" aria-labelledby="staff-manager-heading">
       <div className="section-heading">
-        <div>
-          <p className="section-kicker">Stammdaten</p>
-          <h2 id="staff-manager-heading">Mitarbeiter verwalten</h2>
-        </div>
+        <h2 id="staff-manager-heading">Mitarbeiter verwalten</h2>
       </div>
 
       <form className="staff-form" onSubmit={handleSubmit}>
@@ -127,30 +126,35 @@ export function StaffManager({
           />
         </label>
 
-        <label className="field-label" htmlFor="staff-hourly-rate">
-          Stundenlohn in EUR
-          <input
-            id="staff-hourly-rate"
-            autoComplete="off"
-            autoCorrect="off"
-            inputMode="decimal"
-            pattern="[0-9]*[,.]?[0-9]*"
-            placeholder="14,50"
-            type="text"
-            value={hourlyRate}
-            onChange={(event) => setHourlyRate(event.target.value)}
-          />
-        </label>
-
         <label className="check-row staff-check-row" htmlFor="staff-paid-cash">
           <input
             id="staff-paid-cash"
             checked={paidCash}
             type="checkbox"
-            onChange={(event) => setPaidCash(event.target.checked)}
+            onChange={(event) => {
+              setPaidCash(event.target.checked);
+              setError("");
+            }}
           />
           <span>Gehalt wird bar ausgezahlt</span>
         </label>
+
+        {paidCash ? (
+          <label className="field-label" htmlFor="staff-hourly-rate">
+            Stundenlohn in EUR
+            <input
+              id="staff-hourly-rate"
+              autoComplete="off"
+              autoCorrect="off"
+              inputMode="decimal"
+              pattern="[0-9]*[,.]?[0-9]*"
+              placeholder="14,50"
+              type="text"
+              value={hourlyRate}
+              onChange={(event) => setHourlyRate(event.target.value)}
+            />
+          </label>
+        ) : null}
 
         {error ? <p className="field-hint">{error}</p> : null}
 
@@ -199,20 +203,6 @@ export function StaffManager({
               />
             </label>
 
-            <label className="field-label" htmlFor="staff-edit-hourly-rate">
-              Stundenlohn in EUR
-              <input
-                id="staff-edit-hourly-rate"
-                autoComplete="off"
-                autoCorrect="off"
-                inputMode="decimal"
-                pattern="[0-9]*[,.]?[0-9]*"
-                type="text"
-                value={editHourlyRate}
-                onChange={(event) => setEditHourlyRate(event.target.value)}
-              />
-            </label>
-
             <label
               className="check-row staff-check-row"
               htmlFor="staff-edit-paid-cash"
@@ -221,10 +211,29 @@ export function StaffManager({
                 id="staff-edit-paid-cash"
                 checked={editPaidCash}
                 type="checkbox"
-                onChange={(event) => setEditPaidCash(event.target.checked)}
+                onChange={(event) => {
+                  setEditPaidCash(event.target.checked);
+                  setEditError("");
+                }}
               />
               <span>Gehalt wird bar ausgezahlt</span>
             </label>
+
+            {editPaidCash ? (
+              <label className="field-label" htmlFor="staff-edit-hourly-rate">
+                Stundenlohn in EUR
+                <input
+                  id="staff-edit-hourly-rate"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  inputMode="decimal"
+                  pattern="[0-9]*[,.]?[0-9]*"
+                  type="text"
+                  value={editHourlyRate}
+                  onChange={(event) => setEditHourlyRate(event.target.value)}
+                />
+              </label>
+            ) : null}
           </>
         ) : null}
 
