@@ -554,6 +554,11 @@ input.invalid,
   padding: 0.85rem;
 }
 
+.summary-grid .summary-item-success {
+  border: 1px solid rgba(74, 222, 128, 0.42);
+  background: rgba(22, 101, 52, 0.28);
+}
+
 .summary-grid dt,
 .summary-quick dt {
   color: #b5aa9b;
@@ -568,6 +573,14 @@ input.invalid,
   font-size: clamp(1.2rem, 7vw, 1.55rem);
   font-weight: 850;
   overflow-wrap: anywhere;
+}
+
+.summary-grid .summary-item-success dt {
+  color: #bbf7d0;
+}
+
+.summary-grid .summary-item-success dd {
+  color: #86efac;
 }
 
 .payout-list {

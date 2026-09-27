@@ -63,6 +63,7 @@ export function SettlementSummary({ settlement }) {
             <SummaryItem
               label="Abzugeben nach Lohn"
               value={formatCurrency(Math.max(settlement.amountToHandOver, 0))}
+              variant="success"
             />
             <SummaryItem
               label="Gesamtstunden"
@@ -109,9 +110,9 @@ export function SettlementSummary({ settlement }) {
   );
 }
 
-function SummaryItem({ label, value }) {
+function SummaryItem({ label, value, variant }) {
   return (
-    <div>
+    <div className={variant === "success" ? "summary-item-success" : undefined}>
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
