@@ -49,11 +49,11 @@ export function SettlementSummary({ settlement }) {
         <div className="summary-details">
           <dl className="summary-grid">
             <SummaryItem
-              label="Umsatz"
+              label="Bargeld gesamt"
               value={formatCurrency(settlement.cashRevenue)}
             />
             <SummaryItem
-              label="Brutto abzugeben"
+              label="Gesamt Abzugeben"
               value={formatCurrency(settlement.amountToSubmit)}
             />
             <SummaryItem
@@ -61,7 +61,7 @@ export function SettlementSummary({ settlement }) {
               value={formatCurrency(settlement.cashWagesTotal)}
             />
             <SummaryItem
-              label="Netto abzugeben"
+              label="Abzugeben nach Lohn"
               value={formatCurrency(Math.max(settlement.amountToHandOver, 0))}
             />
             <SummaryItem

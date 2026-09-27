@@ -123,13 +123,13 @@ function createWarnings({
 
   if (amountToSubmit > cashRevenue) {
     warnings.push(
-      "Der Brutto-abzugeben-Betrag ist groesser als der eingetragene Umsatz.",
+      "Gesamt Abzugeben ist größer als Bargeld gesamt.",
     );
   }
 
   if (amountToHandOver < 0) {
     warnings.push(
-      "Die Barlöhne sind höher als der Brutto-abzugeben-Betrag. Es kann kein Netto-abzugeben-Betrag berechnet werden.",
+      "Die Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn kann nicht berechnet werden.",
     );
   }
 

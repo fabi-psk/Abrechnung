@@ -7,12 +7,20 @@ export function EmployeeCard({
   index,
   canRemove,
   result,
+  staffMembers,
   onChange,
   onRemove,
+  onSelectStaffMember,
 }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const hasMissingTime = !employee.startTime || !employee.endTime;
   const employeeName = employee.name.trim() || `Mitarbeiter ${index + 1}`;
+  const selectedStaffMemberExists = staffMembers.some(
+    (staffMember) => staffMember.id === employee.staffMemberId,
+  );
+  const selectedStaffMemberId = selectedStaffMemberExists
+    ? employee.staffMemberId
+    : "";
 
   return (
     <article className="employee-card">
@@ -50,18 +58,27 @@ export function EmployeeCard({
             </button>
           ) : null}
 
-      <label className="field-label" htmlFor={`name-${employee.id}`}>
-        Name
-        <input
-          id={`name-${employee.id}`}
-          placeholder="Name"
-          type="text"
-          value={employee.name}
-          onFocus={(event) => event.target.select()}
+      <label className="field-label" htmlFor={`staff-member-${employee.id}`}>
+        Mitarbeiter
+        <select
+          id={`staff-member-${employee.id}`}
+          disabled={staffMembers.length === 0}
+          value={selectedStaffMemberId}
           onChange={(event) =>
-            onChange(employee.id, { name: event.target.value })
+            onSelectStaffMember(employee.id, event.target.value)
           }
-        />
+        >
+          <option value="">
+            {staffMembers.length === 0
+              ? "Keine Mitarbeiter gespeichert"
+              : "Mitarbeiter auswählen"}
+          </option>
+          {staffMembers.map((staffMember) => (
+            <option key={staffMember.id} value={staffMember.id}>
+              {staffMember.name}
+            </option>
+          ))}
+        </select>
       </label>
 
       <div className="time-grid">

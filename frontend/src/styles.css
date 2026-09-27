@@ -98,6 +98,7 @@ h3 {
 
 .amount-panel,
 .employee-card,
+.staff-panel,
 .summary-panel,
 .finish-panel {
   border: 1px solid rgba(229, 199, 151, 0.16);
@@ -113,6 +114,7 @@ h3 {
 }
 
 .section-block,
+.staff-panel,
 .summary-panel,
 .finish-panel {
   margin-top: 1rem;
@@ -222,9 +224,74 @@ input.invalid,
   padding: 0.65rem 0.75rem;
 }
 
+.preset-buttons button[aria-expanded="true"] {
+  background: #d7a85f;
+  color: #17120e;
+}
+
+.wide-preset-button {
+  grid-column: 1 / -1;
+}
+
 .employee-list {
   display: grid;
   gap: 0.85rem;
+}
+
+.staff-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.staff-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.staff-delete-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.staff-divider {
+  height: 1px;
+  background: rgba(229, 199, 151, 0.16);
+}
+
+.staff-check-row {
+  align-items: flex-start;
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.06);
+  padding: 0.75rem 0.85rem;
+}
+
+.staff-submit-button {
+  margin-top: 0.15rem;
+}
+
+.staff-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.staff-row {
+  display: grid;
+  gap: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.06);
+  padding: 0.85rem;
+}
+
+.staff-row p,
+.empty-state {
+  margin-bottom: 0;
+  color: #b5aa9b;
+}
+
+.danger-button {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.3);
 }
 
 .employee-card {
@@ -557,8 +624,7 @@ input.invalid,
   }
 
   .app-header {
-    grid-template-columns: 1fr auto;
-    align-items: end;
+    justify-content: end;
   }
 
   .header-actions {
@@ -585,6 +651,7 @@ input.invalid,
 
   .amount-panel,
   .employee-card,
+  .staff-panel,
   .summary-panel,
   .finish-panel {
     padding: 1.25rem;
@@ -597,6 +664,22 @@ input.invalid,
 
   .employee-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .staff-form {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    align-items: end;
+  }
+
+  .staff-check-row,
+  .staff-submit-button,
+  .staff-form .field-hint {
+    grid-column: 1 / -1;
+  }
+
+  .staff-row {
+    grid-template-columns: 1fr auto;
+    align-items: center;
   }
 
   .time-grid {

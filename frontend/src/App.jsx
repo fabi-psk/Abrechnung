@@ -1,8 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
+import { StaffManager } from "./components/StaffManager";
 import { calculateSettlement } from "./lib/calculations";
 import { createSettlementPdf, shareOrDownloadPdf } from "./lib/pdfSettlement";
+import {
+  createStaffMember,
+  loadStaffMembers,
+  saveStaffMembers,
+} from "./lib/staffStorage";
 import "./styles.css";
 
 const MIN_EMPLOYEES = 2;
@@ -12,6 +18,7 @@ let nextEmployeeId = 1;
 const createEmployee = (index) => ({
   id: `employee-${nextEmployeeId++}`,
   name: `Mitarbeiter ${index}`,
+  staffMemberId: "",
   startTime: "",
   endTime: "",
   paidInCash: false,
@@ -19,8 +26,6 @@ const createEmployee = (index) => ({
 });
 
 const createInitialEmployees = () => [createEmployee(1), createEmployee(2)];
-const createEmployees = (count) =>
-  Array.from({ length: count }, (_, index) => createEmployee(index + 1));
 const createWeekdayEmployees = () => [
   { ...createEmployee(1), startTime: "18:30" },
   { ...createEmployee(2), startTime: "19:30" },
@@ -37,7 +42,13 @@ function App() {
   const [cashRevenue, setCashRevenue] = useState("");
   const [amountToSubmit, setAmountToSubmit] = useState("");
   const [employees, setEmployees] = useState(createInitialEmployees);
+  const [staffMembers, setStaffMembers] = useState(loadStaffMembers);
+  const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
   const [finishStatus, setFinishStatus] = useState("idle");
+
+  useEffect(() => {
+    saveStaffMembers(staffMembers);
+  }, [staffMembers]);
 
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
@@ -50,6 +61,37 @@ function App() {
         employee.id === id ? { ...employee, ...updates } : employee,
       ),
     );
+  };
+
+  const addStaffMember = (staffMemberInput) => {
+    setStaffMembers((currentStaffMembers) => [
+      ...currentStaffMembers,
+      createStaffMember(staffMemberInput),
+    ]);
+  };
+
+  const deleteStaffMember = (staffMemberId) => {
+    setStaffMembers((currentStaffMembers) =>
+      currentStaffMembers.filter((staffMember) => staffMember.id !== staffMemberId),
+    );
+  };
+
+  const selectStaffMember = (employeeId, staffMemberId) => {
+    const selectedStaffMember = staffMembers.find(
+      (staffMember) => staffMember.id === staffMemberId,
+    );
+
+    if (!selectedStaffMember) {
+      updateEmployee(employeeId, { staffMemberId: "" });
+      return;
+    }
+
+    updateEmployee(employeeId, {
+      staffMemberId: selectedStaffMember.id,
+      name: selectedStaffMember.name,
+      hourlyWage: formatHourlyRateInput(selectedStaffMember.hourlyRate),
+      paidInCash: selectedStaffMember.paidCash,
+    });
   };
 
   const addEmployee = () => {
@@ -102,10 +144,6 @@ function App() {
   return (
     <main className="app-shell">
       <header className="app-header">
-        <div>
-          <p className="eyebrow">Schicht- und Kassenabrechnung</p>
-          <h1>Abrechnung</h1>
-        </div>
         <div className="header-actions">
           <button className="reset-button" type="button" onClick={resetSettlement}>
             Neue Abrechnung
@@ -117,13 +155,31 @@ function App() {
             <button type="button" onClick={applyWeekendPreset}>
               Wochenende
             </button>
+            <button
+              className="wide-preset-button"
+              aria-expanded={isStaffManagerOpen}
+              type="button"
+              onClick={() =>
+                setIsStaffManagerOpen((currentValue) => !currentValue)
+              }
+            >
+              Mitarbeiter verwalten
+            </button>
           </div>
         </div>
       </header>
 
+      {isStaffManagerOpen ? (
+        <StaffManager
+          staffMembers={staffMembers}
+          onAddStaffMember={addStaffMember}
+          onDeleteStaffMember={deleteStaffMember}
+        />
+      ) : null}
+
       <section className="amount-panel" aria-labelledby="cash-heading">
         <label className="field-label" htmlFor="cash-revenue">
-          <span id="cash-heading">Umsatz</span>
+          <span id="cash-heading">Bargeld gesamt</span>
           <input
             id="cash-revenue"
             className="amount-input"
@@ -139,7 +195,7 @@ function App() {
         </label>
 
         <label className="field-label" htmlFor="amount-to-submit">
-          <span>Brutto abzugeben</span>
+          <span>Gesamt Abzugeben</span>
           <input
             id="amount-to-submit"
             className="amount-input"
@@ -181,8 +237,10 @@ function App() {
               result={settlement.employeeResults.find(
                 (item) => item.id === employee.id,
               )}
+              staffMembers={staffMembers}
               onChange={updateEmployee}
               onRemove={removeEmployee}
+              onSelectStaffMember={selectStaffMember}
             />
           ))}
         </div>
@@ -205,3 +263,7 @@ function App() {
 }
 
 export default App;
+
+function formatHourlyRateInput(value) {
+  return String(value).replace(".", ",");
+}
