@@ -138,7 +138,7 @@ export function EmployeeCard({
 
           {canRemove ? (
             <button
-              className="text-button"
+              className="text-button danger-button"
               type="button"
               onClick={() => onRemove(employee.id)}
             >

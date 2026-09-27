@@ -156,7 +156,7 @@ function App() {
   };
 
   const finishSettlement = async () => {
-    const shouldFinish = window.confirm("Abrechnunug wirklich fertigstellen?");
+    const shouldFinish = window.confirm("Abrechnung wirklich fertigstellen?");
 
     if (!shouldFinish) {
       return;
@@ -173,6 +173,17 @@ function App() {
       setFinishStatus("failed");
     }
   };
+
+  const finishButtonLabel =
+    finishStatus === "working"
+      ? "PDF wird erstellt..."
+      : finishStatus === "shared"
+        ? "PDF geteilt"
+        : finishStatus === "downloaded"
+          ? "PDF heruntergeladen"
+          : finishStatus === "failed"
+            ? "PDF erneut erstellen"
+            : "Abrechnung fertigstellen";
 
   return (
     <main className="app-shell">
@@ -296,7 +307,7 @@ function App() {
           type="button"
           onClick={finishSettlement}
         >
-          Abrechnung fertigstellen
+          {finishButtonLabel}
         </button>
       </section>
     </main>
