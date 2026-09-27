@@ -3,7 +3,11 @@ import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { StaffManager } from "./components/StaffManager";
 import { calculateSettlement } from "./lib/calculations";
-import { createSettlementPdf, shareOrDownloadPdf } from "./lib/pdfSettlement";
+import {
+  createReceiptSettlementPdf,
+  createSettlementPdf,
+  shareOrDownloadPdf,
+} from "./lib/pdfSettlement";
 import {
   createStaffMember,
   loadStaffMembers,
@@ -47,6 +51,7 @@ function App() {
   const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
   const [activePreset, setActivePreset] = useState(null);
   const [finishStatus, setFinishStatus] = useState("idle");
+  const [printStatus, setPrintStatus] = useState("idle");
 
   useEffect(() => {
     saveStaffMembers(staffMembers);
@@ -177,6 +182,19 @@ function App() {
     }
   };
 
+  const createPrintOverview = async () => {
+    setPrintStatus("working");
+
+    try {
+      const pdf = createReceiptSettlementPdf({ settlement, employees });
+      const result = await shareOrDownloadPdf(pdf);
+      setPrintStatus(result);
+    } catch (error) {
+      console.error(error);
+      setPrintStatus("failed");
+    }
+  };
+
   const finishButtonLabel =
     hasMissingEmployeeTimes
       ? "Zeiten vollständig eintragen"
@@ -189,6 +207,18 @@ function App() {
           : finishStatus === "failed"
             ? "PDF erneut erstellen"
             : "Abrechnung fertigstellen";
+  const printButtonLabel =
+    hasMissingEmployeeTimes
+      ? "Zeiten vollständig eintragen"
+      : printStatus === "working"
+        ? "Druck Übersicht wird erstellt..."
+        : printStatus === "shared"
+          ? "Druck Übersicht geteilt"
+          : printStatus === "downloaded"
+            ? "Druck Übersicht heruntergeladen"
+            : printStatus === "failed"
+              ? "Druck Übersicht erneut erstellen"
+              : "Druck Übersicht erstellen";
 
   return (
     <main className="app-shell">
@@ -313,6 +343,14 @@ function App() {
           onClick={finishSettlement}
         >
           {finishButtonLabel}
+        </button>
+        <button
+          className="print-button"
+          disabled={printStatus === "working" || hasMissingEmployeeTimes}
+          type="button"
+          onClick={createPrintOverview}
+        >
+          {printButtonLabel}
         </button>
       </section>
     </main>

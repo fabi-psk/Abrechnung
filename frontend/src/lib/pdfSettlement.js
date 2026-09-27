@@ -3,6 +3,9 @@ const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 const BOTTOM_MARGIN = 42;
 const LINE_HEIGHT = 15;
+const RECEIPT_WIDTH = 226.77;
+const RECEIPT_MARGIN = 12;
+const RECEIPT_LINE_HEIGHT = 11;
 
 const euroFormatter = new Intl.NumberFormat("de-DE", {
   minimumFractionDigits: 2,
@@ -95,6 +98,81 @@ export function createSettlementPdf({ settlement, employees }) {
   return { blob, fileName };
 }
 
+export function createReceiptSettlementPdf({ settlement, employees }) {
+  const writer = createReceiptPdfWriter();
+  const now = new Date();
+  const titleDate = now.toLocaleDateString("de-DE");
+  const fileDate = now.toISOString().slice(0, 10);
+  const employeeLookup = new Map(employees.map((employee) => [employee.id, employee]));
+
+  writer.separator();
+  writer.center("TAGESABRECHNUNG", 11, { bold: true });
+  writer.center(titleDate, 9);
+  writer.separator();
+  writer.space(5);
+
+  writer.heading("ABZUGEBEN");
+  writer.row("Ausgangsbetrag:", formatCurrencyForPdf(settlement.amountToSubmit));
+  writer.space(7);
+
+  writer.heading("PERSONAL");
+  writer.separator();
+  writer.space(4);
+
+  settlement.employeeResults.forEach((result, index) => {
+    const sourceEmployee = employeeLookup.get(result.id);
+
+    writer.wrap(result.name, 9, { bold: true });
+    writer.row(
+      `${sourceEmployee?.startTime || "--:--"} - ${sourceEmployee?.endTime || "--:--"}`,
+      formatHoursForReceipt(result.hours),
+    );
+
+    if (result.paidInCash) {
+      writer.row("Barlohn:", formatCurrencyForPdf(result.cashWage), { indent: 8 });
+    }
+
+    if (index < settlement.employeeResults.length - 1) {
+      writer.space(7);
+    }
+  });
+
+  writer.space(5);
+  writer.separator();
+  writer.row("Barlohn gesamt:", formatCurrencyForPdf(settlement.cashWagesTotal), {
+    boldValue: true,
+  });
+  writer.space(8);
+
+  writer.heading("TRINKGELD");
+  writer.separator();
+  writer.row("Trinkgeld gesamt:", formatCurrencyForPdf(settlement.totalTips), {
+    boldValue: true,
+  });
+
+  if (settlement.employeeResults.length > 0) {
+    writer.space(5);
+    settlement.employeeResults.forEach((result) => {
+      writer.wrap(result.name, 8.5);
+      writer.row("Trinkgeld:", formatCurrencyForPdf(result.tip), {
+        indent: 8,
+        size: 8.5,
+      });
+    });
+  }
+
+  writer.space(7);
+  writer.separator();
+  writer.heading("ABZUGEBEN");
+  writer.bigAmount(formatCurrencyForPdf(settlement.amountToHandOver));
+  writer.separator();
+
+  const blob = writer.finish();
+  const fileName = `tagesabrechnung-${fileDate}.pdf`;
+
+  return { blob, fileName };
+}
+
 export async function shareOrDownloadPdf(pdf) {
   const file = new File([pdf.blob], pdf.fileName, { type: "application/pdf" });
 
@@ -163,6 +241,72 @@ function createPdfWriter() {
   return api;
 }
 
+function createReceiptPdfWriter() {
+  const commands = [];
+  let y = RECEIPT_MARGIN;
+
+  const api = {
+    text(value, x, size = 9, options = {}) {
+      commands.push({
+        type: "text",
+        value,
+        x,
+        y,
+        size,
+        bold: Boolean(options.bold),
+        align: options.align,
+      });
+      y += options.lineHeight ?? RECEIPT_LINE_HEIGHT;
+    },
+    center(value, size = 9, options = {}) {
+      api.text(value, RECEIPT_WIDTH / 2, size, { ...options, align: "center" });
+    },
+    heading(value) {
+      api.text(value, RECEIPT_MARGIN, 9, { bold: true, lineHeight: 12 });
+    },
+    row(label, value, options = {}) {
+      const size = options.size ?? 8.6;
+      const labelX = RECEIPT_MARGIN + (options.indent ?? 0);
+      api.text(label, labelX, size, { bold: options.boldLabel, lineHeight: 0 });
+      api.text(value, RECEIPT_WIDTH - RECEIPT_MARGIN, size, {
+        align: "right",
+        bold: options.boldValue,
+      });
+    },
+    wrap(value, size = 9, options = {}) {
+      wrapReceiptText(value, 29).forEach((line) => {
+        api.text(line, RECEIPT_MARGIN, size, options);
+      });
+    },
+    bigAmount(value) {
+      api.text(value, RECEIPT_WIDTH - RECEIPT_MARGIN, 13, {
+        align: "right",
+        bold: true,
+        lineHeight: 17,
+      });
+    },
+    separator() {
+      commands.push({ type: "line", y: y + 3 });
+      y += 9;
+    },
+    space(height) {
+      y += height;
+    },
+    finish() {
+      const pageHeight = Math.max(y + RECEIPT_MARGIN, 160);
+      const pageCommands = commands.map((command) =>
+        command.type === "line"
+          ? drawReceiptLine(command, pageHeight)
+          : drawReceiptText(command, pageHeight),
+      );
+
+      return buildPdfWithSize([pageCommands], RECEIPT_WIDTH, pageHeight);
+    },
+  };
+
+  return api;
+}
+
 function drawSectionTitle(writer, pageIndex, title, y) {
   writer.text(pageIndex, title, MARGIN, y, 13, { bold: true });
   writer.line(pageIndex, MARGIN, y + 7, PAGE_WIDTH - MARGIN, y + 7);
@@ -223,6 +367,10 @@ function drawEmployeeRow(writer, pageIndex, row) {
 }
 
 function buildPdf(pages) {
+  return buildPdfWithSize(pages, PAGE_WIDTH, PAGE_HEIGHT);
+}
+
+function buildPdfWithSize(pages, pageWidth, pageHeight) {
   const objects = [];
   const addObject = (body) => {
     objects.push(body);
@@ -248,7 +396,7 @@ function buildPdf(pages) {
 
   pages.forEach((_, index) => {
     pageIds[index] = addObject(
-      `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}] /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> /Contents ${contentIds[index]} 0 R >>`,
+      `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> /Contents ${contentIds[index]} 0 R >>`,
     );
   });
 
@@ -273,12 +421,79 @@ function buildPdf(pages) {
   return new Blob([pdf], { type: "application/pdf" });
 }
 
+function drawReceiptText(command, pageHeight) {
+  const font = command.bold ? "F2" : "F1";
+  const safeValue = escapePdfText(command.value);
+  const estimatedWidth = estimatePdfTextWidth(command.value, command.size);
+  const x =
+    command.align === "center"
+      ? command.x - estimatedWidth / 2
+      : command.align === "right"
+        ? command.x - estimatedWidth
+        : command.x;
+
+  return `0.08 0.08 0.08 rg BT /${font} ${command.size} Tf ${x.toFixed(2)} ${(pageHeight - command.y).toFixed(
+    2,
+  )} Td (${safeValue}) Tj ET`;
+}
+
+function drawReceiptLine(command, pageHeight) {
+  return `0.08 0.08 0.08 RG 0.5 w ${RECEIPT_MARGIN.toFixed(2)} ${(pageHeight - command.y).toFixed(
+    2,
+  )} m ${(RECEIPT_WIDTH - RECEIPT_MARGIN).toFixed(2)} ${(pageHeight - command.y).toFixed(2)} l S`;
+}
+
 function formatCurrencyForPdf(value) {
   return `${euroFormatter.format(value)} EUR`;
 }
 
 function formatHoursForPdf(value) {
   return `${numberFormatter.format(value)} Std.`;
+}
+
+function formatHoursForReceipt(value) {
+  return `${new Intl.NumberFormat("de-DE", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value)} Std.`;
+}
+
+function wrapReceiptText(value, maxLength) {
+  const words = String(value).trim().split(/\s+/).filter(Boolean);
+  const lines = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    if (word.length > maxLength) {
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = "";
+      }
+      for (let index = 0; index < word.length; index += maxLength) {
+        lines.push(word.slice(index, index + maxLength));
+      }
+      return;
+    }
+
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+    if (nextLine.length > maxLength) {
+      lines.push(currentLine);
+      currentLine = word;
+      return;
+    }
+
+    currentLine = nextLine;
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.length > 0 ? lines : ["Ohne Namen"];
+}
+
+function estimatePdfTextWidth(value, size) {
+  return sanitizePdfText(value).length * size * 0.52;
 }
 
 function truncateText(value, maxLength) {
