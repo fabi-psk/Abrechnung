@@ -1,15 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function StaffManager({
   staffMembers,
   onAddStaffMember,
+  onUpdateStaffMember,
   onDeleteStaffMember,
 }) {
   const [name, setName] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
   const [paidCash, setPaidCash] = useState(false);
   const [selectedStaffMemberId, setSelectedStaffMemberId] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editHourlyRate, setEditHourlyRate] = useState("");
+  const [editPaidCash, setEditPaidCash] = useState(false);
   const [error, setError] = useState("");
+  const [editError, setEditError] = useState("");
+
+  const selectedStaffMember = staffMembers.find(
+    (staffMember) => staffMember.id === selectedStaffMemberId,
+  );
+
+  useEffect(() => {
+    if (!selectedStaffMember) {
+      setEditName("");
+      setEditHourlyRate("");
+      setEditPaidCash(false);
+      return;
+    }
+
+    setEditName(selectedStaffMember.name);
+    setEditHourlyRate(formatHourlyRateInput(selectedStaffMember.hourlyRate));
+    setEditPaidCash(selectedStaffMember.paidCash);
+    setEditError("");
+  }, [selectedStaffMember]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -38,24 +61,47 @@ export function StaffManager({
     setError("");
   };
 
-  const handleDeleteSelected = () => {
-    const selectedStaffMember = staffMembers.find(
-      (staffMember) => staffMember.id === selectedStaffMemberId,
-    );
+  const handleUpdateSelected = (event) => {
+    event.preventDefault();
 
     if (!selectedStaffMember) {
-      setError("Bitte einen Mitarbeiter auswählen.");
+      setEditError("Bitte einen Mitarbeiter auswählen.");
       return;
     }
 
-    const shouldDelete = window.confirm(
-      `Möchtest du ${selectedStaffMember.name} wirklich löschen?`,
-    );
+    const trimmedName = editName.trim();
+    const parsedHourlyRate = parsePositiveNumber(editHourlyRate);
+
+    if (!trimmedName) {
+      setEditError("Bitte einen Namen eintragen.");
+      return;
+    }
+
+    if (parsedHourlyRate === null) {
+      setEditError("Bitte einen gültigen Stundenlohn eintragen.");
+      return;
+    }
+
+    onUpdateStaffMember(selectedStaffMember.id, {
+      name: trimmedName,
+      hourlyRate: parsedHourlyRate,
+      paidCash: editPaidCash,
+    });
+    setEditError("");
+  };
+
+  const handleDeleteSelected = () => {
+    if (!selectedStaffMember) {
+      setEditError("Bitte einen Mitarbeiter auswählen.");
+      return;
+    }
+
+    const shouldDelete = window.confirm("Mitarbeiter wirklich löschen?");
 
     if (shouldDelete) {
       onDeleteStaffMember(selectedStaffMember.id);
       setSelectedStaffMemberId("");
-      setError("");
+      setEditError("");
     }
   };
 
@@ -115,16 +161,16 @@ export function StaffManager({
 
       <div className="staff-divider" aria-hidden="true" />
 
-      <div className="staff-delete-form">
-        <label className="field-label" htmlFor="staff-delete-select">
-          Mitarbeiter löschen
+      <form className="staff-edit-form" onSubmit={handleUpdateSelected}>
+        <label className="field-label" htmlFor="staff-edit-select">
+          Mitarbeiter bearbeiten oder löschen
           <select
-            id="staff-delete-select"
+            id="staff-edit-select"
             disabled={staffMembers.length === 0}
             value={selectedStaffMemberId}
             onChange={(event) => {
               setSelectedStaffMemberId(event.target.value);
-              setError("");
+              setEditError("");
             }}
           >
             <option value="">
@@ -140,15 +186,68 @@ export function StaffManager({
           </select>
         </label>
 
-        <button
-          className="text-button danger-button"
-          disabled={staffMembers.length === 0}
-          type="button"
-          onClick={handleDeleteSelected}
-        >
-          Mitarbeiter löschen
-        </button>
-      </div>
+        {selectedStaffMember ? (
+          <>
+            <label className="field-label" htmlFor="staff-edit-name">
+              Name
+              <input
+                id="staff-edit-name"
+                autoComplete="name"
+                type="text"
+                value={editName}
+                onChange={(event) => setEditName(event.target.value)}
+              />
+            </label>
+
+            <label className="field-label" htmlFor="staff-edit-hourly-rate">
+              Stundenlohn in EUR
+              <input
+                id="staff-edit-hourly-rate"
+                autoComplete="off"
+                autoCorrect="off"
+                inputMode="decimal"
+                pattern="[0-9]*[,.]?[0-9]*"
+                type="text"
+                value={editHourlyRate}
+                onChange={(event) => setEditHourlyRate(event.target.value)}
+              />
+            </label>
+
+            <label
+              className="check-row staff-check-row"
+              htmlFor="staff-edit-paid-cash"
+            >
+              <input
+                id="staff-edit-paid-cash"
+                checked={editPaidCash}
+                type="checkbox"
+                onChange={(event) => setEditPaidCash(event.target.checked)}
+              />
+              <span>Gehalt wird bar ausgezahlt</span>
+            </label>
+          </>
+        ) : null}
+
+        {editError ? <p className="field-hint">{editError}</p> : null}
+
+        <div className="staff-edit-actions">
+          <button
+            className="add-button"
+            disabled={!selectedStaffMember}
+            type="submit"
+          >
+            Änderungen speichern
+          </button>
+          <button
+            className="text-button danger-button"
+            disabled={!selectedStaffMember}
+            type="button"
+            onClick={handleDeleteSelected}
+          >
+            Mitarbeiter löschen
+          </button>
+        </div>
+      </form>
     </section>
   );
 }
@@ -161,4 +260,8 @@ function parsePositiveNumber(value) {
   }
 
   return number;
+}
+
+function formatHourlyRateInput(value) {
+  return String(value).replace(".", ",");
 }

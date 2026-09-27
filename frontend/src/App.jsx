@@ -79,6 +79,18 @@ function App() {
     );
   };
 
+  const updateStaffMember = (staffMemberId, updates) => {
+    setStaffMembers((currentStaffMembers) =>
+      sortStaffMembers(
+        currentStaffMembers.map((staffMember) =>
+          staffMember.id === staffMemberId
+            ? { ...staffMember, ...updates }
+            : staffMember,
+        ),
+      ),
+    );
+  };
+
   const selectStaffMember = (employeeId, staffMemberId) => {
     const selectedStaffMember = staffMembers.find(
       (staffMember) => staffMember.id === staffMemberId,
@@ -118,6 +130,14 @@ function App() {
   };
 
   const resetSettlement = () => {
+    const shouldReset = window.confirm(
+      "Möchtest du die aktuelle Abrechnung wirklich löschen?",
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
     setCashRevenue("");
     setAmountToSubmit("");
     setEmployees(createInitialEmployees());
@@ -176,6 +196,7 @@ function App() {
         <StaffManager
           staffMembers={staffMembers}
           onAddStaffMember={addStaffMember}
+          onUpdateStaffMember={updateStaffMember}
           onDeleteStaffMember={deleteStaffMember}
         />
       ) : null}

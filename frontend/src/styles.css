@@ -249,9 +249,14 @@ input.invalid,
   gap: 0.85rem;
 }
 
-.staff-delete-form {
+.staff-edit-form {
   display: grid;
   gap: 0.85rem;
+}
+
+.staff-edit-actions {
+  display: grid;
+  gap: 0.65rem;
 }
 
 .staff-divider {
@@ -693,6 +698,22 @@ input.invalid,
   .staff-row {
     grid-template-columns: 1fr auto;
     align-items: center;
+  }
+
+  .staff-edit-form {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    align-items: end;
+  }
+
+  .staff-edit-form > .field-label:first-child,
+  .staff-edit-form .staff-check-row,
+  .staff-edit-form .field-hint,
+  .staff-edit-actions {
+    grid-column: 1 / -1;
+  }
+
+  .staff-edit-actions {
+    grid-template-columns: 1fr 1fr;
   }
 
   .time-grid {
