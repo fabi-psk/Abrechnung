@@ -127,23 +127,6 @@ export function EmployeeCard({
             <span>Lohn wurde ausgezahlt</span>
           </label>
 
-          <label className="field-label" htmlFor={`hourly-wage-${employee.id}`}>
-            Stundenlohn
-            <input
-              id={`hourly-wage-${employee.id}`}
-              autoComplete="off"
-              autoCorrect="off"
-              inputMode="decimal"
-              pattern="[0-9]*[,.]?[0-9]*"
-              placeholder="0,00"
-              type="text"
-              value={employee.hourlyWage ?? ""}
-              onChange={(event) =>
-                onChange(employee.id, { hourlyWage: event.target.value })
-              }
-            />
-          </label>
-
           <div className="hours-display">
             <span>Barlohn gesamt</span>
             <strong>{formatCurrency(result?.cashWage ?? 0)}</strong>
