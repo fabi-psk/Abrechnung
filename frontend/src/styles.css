@@ -584,6 +584,11 @@ input.invalid,
   background: rgba(30, 64, 175, 0.28);
 }
 
+.summary-grid .summary-item-muted {
+  border: 1px solid rgba(203, 191, 174, 0.22);
+  background: rgba(203, 191, 174, 0.08);
+}
+
 .summary-grid dt,
 .summary-quick dt {
   color: #b5aa9b;
@@ -614,6 +619,14 @@ input.invalid,
 
 .summary-grid .summary-item-info dd {
   color: #93c5fd;
+}
+
+.summary-grid .summary-item-muted dt {
+  color: #d8cebd;
+}
+
+.summary-grid .summary-item-muted dd {
+  color: #e9ddca;
 }
 
 .summary-grid .summary-item-danger dd {

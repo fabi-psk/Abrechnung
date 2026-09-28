@@ -33,17 +33,6 @@ export function SettlementSummary({ settlement }) {
         </div>
       ) : null}
 
-      <dl className="summary-quick">
-        <SummaryItem
-          label="Trinkgeld gesamt"
-          value={formatCurrency(settlement.totalTips)}
-        />
-        <SummaryItem
-          label="Trinkgeld pro Stunde"
-          value={formatCurrency(settlement.tipsPerHour)}
-        />
-      </dl>
-
       {isExpanded ? (
         <div className="summary-details">
           <dl className="summary-grid">
@@ -77,8 +66,19 @@ export function SettlementSummary({ settlement }) {
               variant="success"
             />
             <SummaryItem
+              label="Trinkgeld gesamt"
+              value={formatCurrency(settlement.totalTips)}
+              variant="muted"
+            />
+            <SummaryItem
+              label="Trinkgeld pro Stunde"
+              value={formatCurrency(settlement.tipsPerHour)}
+              variant="muted"
+            />
+            <SummaryItem
               label="Gesamtstunden"
               value={formatHours(settlement.totalHours)}
+              variant="muted"
             />
           </dl>
 
@@ -130,9 +130,11 @@ function SummaryItem({ label, value, variant }) {
       ? "summary-item-success"
       : variant === "info"
         ? "summary-item-info"
-        : variant === "danger"
-          ? "summary-item-danger"
-          : undefined;
+        : variant === "muted"
+          ? "summary-item-muted"
+          : variant === "danger"
+            ? "summary-item-danger"
+            : undefined;
 
   return (
     <div className={className}>
