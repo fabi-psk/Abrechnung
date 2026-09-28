@@ -15,12 +15,13 @@ export function EmployeeCard({
 }) {
   const hasMissingTime = !employee.startTime || !employee.endTime;
   const employeeName = employee.name.trim() || `Mitarbeiter ${index + 1}`;
-  const selectedStaffMemberExists = staffMembers.some(
+  const selectedStaffMember = staffMembers.find(
     (staffMember) => staffMember.id === employee.staffMemberId,
   );
-  const selectedStaffMemberId = selectedStaffMemberExists
+  const selectedStaffMemberId = selectedStaffMember
     ? employee.staffMemberId
     : "";
+  const canReceiveCashWage = Boolean(selectedStaffMember?.paidCash);
 
   return (
     <article className="employee-card">
@@ -98,22 +99,7 @@ export function EmployeeCard({
         <p className="field-hint">Bitte Beginn und Ende eintragen.</p>
       ) : null}
 
-      <label className="check-row" htmlFor={`cash-${employee.id}`}>
-        <input
-          id={`cash-${employee.id}`}
-          checked={employee.paidInCash}
-          type="checkbox"
-          onChange={(event) =>
-            onChange(employee.id, {
-              paidInCash: event.target.checked,
-              wagePaidOut: event.target.checked ? employee.wagePaidOut : false,
-            })
-          }
-        />
-        <span>Lohn wird bar ausgezahlt</span>
-      </label>
-
-      {employee.paidInCash ? (
+      {canReceiveCashWage ? (
         <div className="cash-wage-block">
           <label className="check-row" htmlFor={`wage-paid-out-${employee.id}`}>
             <input
