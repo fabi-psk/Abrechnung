@@ -209,6 +209,9 @@ function App() {
       window.setTimeout(() => {
         setEpsonPrintStatus("sent");
       }, 1000);
+      window.setTimeout(() => {
+        setEpsonPrintStatus("idle");
+      }, 6000);
     } catch (error) {
       console.error(error);
       setEpsonPrintStatus("failed");
@@ -399,8 +402,8 @@ function App() {
             ) : null}
             {epsonPrintStatus === "sent" ? (
               <p className="print-status-message">
-                Wenn kein Bon kommt, Epson TM Print Assistant öffnen und die
-                Druckerverbindung prüfen.
+                Falls nichts gedruckt wird: TM Print Assistant öffnen und Drucker
+                auswählen.
               </p>
             ) : null}
           </section>
