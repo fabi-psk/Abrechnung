@@ -246,7 +246,7 @@ function App() {
                 setIsStaffManagerOpen((currentValue) => !currentValue)
               }
             >
-              Mitarbeiter verwalten
+              Zurück zur Abrechnung
             </button>
           ) : (
             <>
