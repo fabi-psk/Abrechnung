@@ -4,7 +4,6 @@ import { SettlementSummary } from "./components/SettlementSummary";
 import { StaffManager } from "./components/StaffManager";
 import { calculateSettlement } from "./lib/calculations";
 import {
-  createReceiptSettlementPdf,
   createSettlementPdf,
   shareOrDownloadPdf,
 } from "./lib/pdfSettlement";
@@ -54,7 +53,6 @@ function App() {
   const [expandedEmployeeId, setExpandedEmployeeId] = useState(null);
   const [activePreset, setActivePreset] = useState(null);
   const [finishStatus, setFinishStatus] = useState("idle");
-  const [printStatus, setPrintStatus] = useState("idle");
   const [epsonPrintStatus, setEpsonPrintStatus] = useState("idle");
 
   useEffect(() => {
@@ -197,19 +195,6 @@ function App() {
     }
   };
 
-  const createPrintOverview = async () => {
-    setPrintStatus("working");
-
-    try {
-      const pdf = createReceiptSettlementPdf({ settlement, employees });
-      const result = await shareOrDownloadPdf(pdf);
-      setPrintStatus(result);
-    } catch (error) {
-      console.error(error);
-      setPrintStatus("failed");
-    }
-  };
-
   const printSettlement = () => {
     const shouldPrint = window.confirm("Abrechnung drucken?");
 
@@ -242,18 +227,6 @@ function App() {
           : finishStatus === "failed"
             ? "PDF erneut erstellen"
             : "Abrechnung fertigstellen";
-  const printButtonLabel =
-    hasMissingEmployeeTimes
-      ? "Zeiten vollständig eintragen"
-      : printStatus === "working"
-        ? "Druck Übersicht wird erstellt..."
-        : printStatus === "shared"
-          ? "Druck Übersicht geteilt"
-          : printStatus === "downloaded"
-            ? "Druck Übersicht heruntergeladen"
-            : printStatus === "failed"
-              ? "Druck Übersicht erneut erstellen"
-              : "Druck Übersicht erstellen";
   const epsonPrintButtonLabel =
     hasMissingEmployeeTimes
       ? "Zeiten vollständig eintragen"
@@ -409,14 +382,6 @@ function App() {
               onClick={finishSettlement}
             >
               {finishButtonLabel}
-            </button>
-            <button
-              className="print-button"
-              disabled={printStatus === "working" || hasMissingEmployeeTimes}
-              type="button"
-              onClick={createPrintOverview}
-            >
-              {printButtonLabel}
             </button>
             <button
               className="direct-print-button"

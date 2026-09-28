@@ -505,18 +505,6 @@ input.invalid,
   padding: 0.8rem 1rem;
 }
 
-.print-button {
-  width: 100%;
-  min-height: 3.5rem;
-  border: 1px solid rgba(215, 168, 95, 0.42);
-  border-radius: 8px;
-  background: rgba(215, 168, 95, 0.14);
-  color: #ffe0a3;
-  font-size: 1.05rem;
-  font-weight: 900;
-  padding: 0.8rem 1rem;
-}
-
 .direct-print-button {
   width: 100%;
   min-height: 3.5rem;
