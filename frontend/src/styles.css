@@ -629,6 +629,10 @@ input.invalid,
   color: #e9ddca;
 }
 
+.summary-grid .summary-item-positive dd {
+  color: #86efac;
+}
+
 .summary-grid .summary-item-danger dd {
   color: #fca5a5;
 }

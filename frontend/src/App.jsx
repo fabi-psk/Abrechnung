@@ -237,26 +237,9 @@ function App() {
     <main className="app-shell">
       <header className="app-header">
         <div className="header-actions">
-          <button className="reset-button" type="button" onClick={resetSettlement}>
-            Neue Abrechnung
-          </button>
-          <div className="preset-buttons" aria-label="Abrechnungsvorlage">
+          {isStaffManagerOpen ? (
             <button
-              aria-pressed={activePreset === "weekday"}
-              type="button"
-              onClick={applyWeekdayPreset}
-            >
-              Wochentag
-            </button>
-            <button
-              aria-pressed={activePreset === "weekend"}
-              type="button"
-              onClick={applyWeekendPreset}
-            >
-              Wochenende
-            </button>
-            <button
-              className="wide-preset-button"
+              className="reset-button"
               aria-expanded={isStaffManagerOpen}
               type="button"
               onClick={() =>
@@ -265,7 +248,43 @@ function App() {
             >
               Mitarbeiter verwalten
             </button>
-          </div>
+          ) : (
+            <>
+              <button
+                className="reset-button"
+                type="button"
+                onClick={resetSettlement}
+              >
+                Neue Abrechnung
+              </button>
+              <div className="preset-buttons" aria-label="Abrechnungsvorlage">
+                <button
+                  aria-pressed={activePreset === "weekday"}
+                  type="button"
+                  onClick={applyWeekdayPreset}
+                >
+                  Wochentag
+                </button>
+                <button
+                  aria-pressed={activePreset === "weekend"}
+                  type="button"
+                  onClick={applyWeekendPreset}
+                >
+                  Wochenende
+                </button>
+                <button
+                  className="wide-preset-button"
+                  aria-expanded={isStaffManagerOpen}
+                  type="button"
+                  onClick={() =>
+                    setIsStaffManagerOpen((currentValue) => !currentValue)
+                  }
+                >
+                  Mitarbeiter verwalten
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
@@ -276,98 +295,100 @@ function App() {
           onUpdateStaffMember={updateStaffMember}
           onDeleteStaffMember={deleteStaffMember}
         />
-      ) : null}
+      ) : (
+        <>
+          <section className="amount-panel" aria-labelledby="cash-heading">
+            <label className="field-label" htmlFor="cash-revenue">
+              <span id="cash-heading">Bargeld gesamt</span>
+              <input
+                id="cash-revenue"
+                className="amount-input"
+                autoComplete="off"
+                autoCorrect="off"
+                inputMode="decimal"
+                pattern="[0-9]*[,.]?[0-9]*"
+                placeholder="0,00"
+                type="text"
+                value={cashRevenue}
+                onChange={(event) => setCashRevenue(event.target.value)}
+              />
+            </label>
 
-      <section className="amount-panel" aria-labelledby="cash-heading">
-        <label className="field-label" htmlFor="cash-revenue">
-          <span id="cash-heading">Bargeld gesamt</span>
-          <input
-            id="cash-revenue"
-            className="amount-input"
-            autoComplete="off"
-            autoCorrect="off"
-            inputMode="decimal"
-            pattern="[0-9]*[,.]?[0-9]*"
-            placeholder="0,00"
-            type="text"
-            value={cashRevenue}
-            onChange={(event) => setCashRevenue(event.target.value)}
-          />
-        </label>
+            <label className="field-label" htmlFor="amount-to-submit">
+              <span>Gesamt Abzugeben</span>
+              <input
+                id="amount-to-submit"
+                className="amount-input"
+                autoComplete="off"
+                autoCorrect="off"
+                inputMode="decimal"
+                pattern="[0-9]*[,.]?[0-9]*"
+                placeholder="0,00"
+                type="text"
+                value={amountToSubmit}
+                onChange={(event) => setAmountToSubmit(event.target.value)}
+              />
+            </label>
+          </section>
 
-        <label className="field-label" htmlFor="amount-to-submit">
-          <span>Gesamt Abzugeben</span>
-          <input
-            id="amount-to-submit"
-            className="amount-input"
-            autoComplete="off"
-            autoCorrect="off"
-            inputMode="decimal"
-            pattern="[0-9]*[,.]?[0-9]*"
-            placeholder="0,00"
-            type="text"
-            value={amountToSubmit}
-            onChange={(event) => setAmountToSubmit(event.target.value)}
-          />
-        </label>
-      </section>
+          <section className="section-block" aria-labelledby="employees-heading">
+            <div className="section-heading">
+              <div>
+                <h2 id="employees-heading">Mitarbeiter ({employees.length})</h2>
+              </div>
+              <button
+                className="add-button"
+                disabled={employees.length >= MAX_EMPLOYEES}
+                type="button"
+                onClick={addEmployee}
+              >
+                + Mitarbeiter
+              </button>
+            </div>
 
-      <section className="section-block" aria-labelledby="employees-heading">
-        <div className="section-heading">
-          <div>
-            <h2 id="employees-heading">Mitarbeiter ({employees.length})</h2>
-          </div>
-          <button
-            className="add-button"
-            disabled={employees.length >= MAX_EMPLOYEES}
-            type="button"
-            onClick={addEmployee}
-          >
-            + Mitarbeiter
-          </button>
-        </div>
+            <div className="employee-list">
+              {employees.map((employee, index) => (
+                <EmployeeCard
+                  key={employee.id}
+                  employee={employee}
+                  index={index}
+                  canRemove={employees.length > MIN_EMPLOYEES}
+                  isExpanded={expandedEmployeeId === employee.id}
+                  result={settlement.employeeResults.find(
+                    (item) => item.id === employee.id,
+                  )}
+                  staffMembers={staffMembers}
+                  onChange={updateEmployee}
+                  onRemove={removeEmployee}
+                  onSelectStaffMember={selectStaffMember}
+                  onToggle={toggleEmployeeCard}
+                />
+              ))}
+            </div>
+          </section>
 
-        <div className="employee-list">
-          {employees.map((employee, index) => (
-            <EmployeeCard
-              key={employee.id}
-              employee={employee}
-              index={index}
-              canRemove={employees.length > MIN_EMPLOYEES}
-              isExpanded={expandedEmployeeId === employee.id}
-              result={settlement.employeeResults.find(
-                (item) => item.id === employee.id,
-              )}
-              staffMembers={staffMembers}
-              onChange={updateEmployee}
-              onRemove={removeEmployee}
-              onSelectStaffMember={selectStaffMember}
-              onToggle={toggleEmployeeCard}
-            />
-          ))}
-        </div>
-      </section>
+          <SettlementSummary settlement={settlement} />
 
-      <SettlementSummary settlement={settlement} />
-
-      <section className="finish-panel">
-        <button
-          className="finish-button"
-          disabled={finishStatus === "working" || hasMissingEmployeeTimes}
-          type="button"
-          onClick={finishSettlement}
-        >
-          {finishButtonLabel}
-        </button>
-        <button
-          className="print-button"
-          disabled={printStatus === "working" || hasMissingEmployeeTimes}
-          type="button"
-          onClick={createPrintOverview}
-        >
-          {printButtonLabel}
-        </button>
-      </section>
+          <section className="finish-panel">
+            <button
+              className="finish-button"
+              disabled={finishStatus === "working" || hasMissingEmployeeTimes}
+              type="button"
+              onClick={finishSettlement}
+            >
+              {finishButtonLabel}
+            </button>
+            <button
+              className="print-button"
+              disabled={printStatus === "working" || hasMissingEmployeeTimes}
+              type="button"
+              onClick={createPrintOverview}
+            >
+              {printButtonLabel}
+            </button>
+          </section>
+        </>
+      )}
     </main>
   );
 }
