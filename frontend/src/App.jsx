@@ -8,6 +8,7 @@ import {
   createSettlementPdf,
   shareOrDownloadPdf,
 } from "./lib/pdfSettlement";
+import { printSettlementReceipt } from "./services/epsonPrinter";
 import {
   createStaffMember,
   loadStaffMembers,
@@ -54,6 +55,7 @@ function App() {
   const [activePreset, setActivePreset] = useState(null);
   const [finishStatus, setFinishStatus] = useState("idle");
   const [printStatus, setPrintStatus] = useState("idle");
+  const [epsonPrintStatus, setEpsonPrintStatus] = useState("idle");
 
   useEffect(() => {
     saveStaffMembers(staffMembers);
@@ -208,6 +210,26 @@ function App() {
     }
   };
 
+  const printSettlement = () => {
+    const shouldPrint = window.confirm("Abrechnung drucken?");
+
+    if (!shouldPrint) {
+      return;
+    }
+
+    setEpsonPrintStatus("working");
+
+    try {
+      printSettlementReceipt({ settlement, employees });
+      window.setTimeout(() => {
+        setEpsonPrintStatus("sent");
+      }, 1000);
+    } catch (error) {
+      console.error(error);
+      setEpsonPrintStatus("failed");
+    }
+  };
+
   const finishButtonLabel =
     hasMissingEmployeeTimes
       ? "Zeiten vollständig eintragen"
@@ -232,6 +254,16 @@ function App() {
             : printStatus === "failed"
               ? "Druck Übersicht erneut erstellen"
               : "Druck Übersicht erstellen";
+  const epsonPrintButtonLabel =
+    hasMissingEmployeeTimes
+      ? "Zeiten vollständig eintragen"
+      : epsonPrintStatus === "working"
+        ? "Druck wird gestartet..."
+        : epsonPrintStatus === "sent"
+          ? "Abrechnung an Drucker gesendet"
+          : epsonPrintStatus === "failed"
+            ? "Druck erneut starten"
+            : "Abrechnung drucken";
 
   return (
     <main className="app-shell">
@@ -386,6 +418,26 @@ function App() {
             >
               {printButtonLabel}
             </button>
+            <button
+              className="direct-print-button"
+              disabled={epsonPrintStatus === "working" || hasMissingEmployeeTimes}
+              type="button"
+              onClick={printSettlement}
+            >
+              {epsonPrintButtonLabel}
+            </button>
+            {epsonPrintStatus === "failed" ? (
+              <p className="print-status-message">
+                Drucker nicht erreichbar. Stelle sicher, dass du mit dem WLAN der
+                Bar verbunden bist.
+              </p>
+            ) : null}
+            {epsonPrintStatus === "sent" ? (
+              <p className="print-status-message">
+                Wenn kein Bon kommt, Epson TM Print Assistant öffnen und die
+                Druckerverbindung prüfen.
+              </p>
+            ) : null}
           </section>
         </>
       )}
