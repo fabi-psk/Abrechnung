@@ -50,6 +50,12 @@ export function StaffManager({
       return;
     }
 
+    const shouldSave = window.confirm("Mitarbeiter wirklich speichern?");
+
+    if (!shouldSave) {
+      return;
+    }
+
     onAddStaffMember({
       name: trimmedName,
       hourlyRate: parsedHourlyRate,
