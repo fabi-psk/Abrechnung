@@ -6,6 +6,7 @@ export function EmployeeCard({
   index,
   canRemove,
   isExpanded,
+  isDuplicate,
   result,
   staffMembers,
   onChange,
@@ -24,7 +25,9 @@ export function EmployeeCard({
   const canReceiveCashWage = Boolean(selectedStaffMember?.paidCash);
 
   return (
-    <article className="employee-card">
+    <article
+      className={`employee-card${isDuplicate ? " employee-card-warning" : ""}`}
+    >
       <div className="employee-card-header">
         <div className="employee-card-title">
           <h3>{employeeName}</h3>
@@ -97,6 +100,10 @@ export function EmployeeCard({
 
       {hasMissingTime ? (
         <p className="field-hint">Bitte Beginn und Ende eintragen.</p>
+      ) : null}
+
+      {isDuplicate ? (
+        <p className="field-hint">Dieser Mitarbeiter ist mehrfach eingetragen.</p>
       ) : null}
 
       {canReceiveCashWage ? (

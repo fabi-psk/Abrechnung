@@ -312,6 +312,10 @@ input.invalid,
   padding: 0.85rem;
 }
 
+.employee-card-warning {
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
 .employee-card-header {
   display: grid;
   grid-template-columns: 1fr auto;

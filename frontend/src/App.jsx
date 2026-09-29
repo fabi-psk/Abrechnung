@@ -14,6 +14,7 @@ import {
   saveStaffMembers,
   sortStaffMembers,
 } from "./lib/staffStorage";
+import { loadSettlementDraft, saveSettlementDraft } from "./lib/settlementDraft";
 import "./styles.css";
 
 const MIN_EMPLOYEES = 2;
@@ -31,6 +32,21 @@ const createEmployee = (index) => ({
   hourlyWage: "",
 });
 
+const prepareDraftEmployees = (draftEmployees) => {
+  const highestDraftEmployeeId = draftEmployees.reduce((highestId, employee) => {
+    const match = /^employee-(\d+)$/.exec(employee.id);
+
+    if (!match) {
+      return highestId;
+    }
+
+    return Math.max(highestId, Number(match[1]));
+  }, 0);
+
+  nextEmployeeId = Math.max(nextEmployeeId, highestDraftEmployeeId + 1);
+  return draftEmployees;
+};
+
 const createInitialEmployees = () => [createEmployee(1), createEmployee(2)];
 const createWeekdayEmployees = () => [
   { ...createEmployee(1), startTime: "18:30" },
@@ -45,13 +61,25 @@ const createWeekendEmployees = () =>
   );
 
 function App() {
-  const [cashRevenue, setCashRevenue] = useState("");
-  const [amountToSubmit, setAmountToSubmit] = useState("");
-  const [employees, setEmployees] = useState(createInitialEmployees);
+  const [initialDraft] = useState(loadSettlementDraft);
+  const [cashRevenue, setCashRevenue] = useState(
+    () => initialDraft?.cashRevenue ?? "",
+  );
+  const [amountToSubmit, setAmountToSubmit] = useState(
+    () => initialDraft?.amountToSubmit ?? "",
+  );
+  const [employees, setEmployees] = useState(
+    () =>
+      initialDraft?.employees
+        ? prepareDraftEmployees(initialDraft.employees)
+        : createInitialEmployees(),
+  );
   const [staffMembers, setStaffMembers] = useState(loadStaffMembers);
   const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
   const [expandedEmployeeId, setExpandedEmployeeId] = useState(null);
-  const [activePreset, setActivePreset] = useState(null);
+  const [activePreset, setActivePreset] = useState(
+    () => initialDraft?.activePreset ?? null,
+  );
   const [finishStatus, setFinishStatus] = useState("idle");
   const [epsonPrintStatus, setEpsonPrintStatus] = useState("idle");
 
@@ -59,9 +87,30 @@ function App() {
     saveStaffMembers(staffMembers);
   }, [staffMembers]);
 
+  useEffect(() => {
+    saveSettlementDraft({
+      cashRevenue,
+      amountToSubmit,
+      employees,
+      activePreset,
+    });
+  }, [cashRevenue, amountToSubmit, employees, activePreset]);
+
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
     [cashRevenue, amountToSubmit, employees],
+  );
+  const duplicateStaffMemberIds = useMemo(
+    () => getDuplicateStaffMemberIds(employees),
+    [employees],
+  );
+  const duplicateStaffWarnings = useMemo(
+    () => getDuplicateStaffWarnings(employees, staffMembers, duplicateStaffMemberIds),
+    [employees, staffMembers, duplicateStaffMemberIds],
+  );
+  const settlementWarnings = useMemo(
+    () => [...settlement.warnings, ...duplicateStaffWarnings],
+    [settlement.warnings, duplicateStaffWarnings],
   );
   const hasMissingEmployeeTimes = employees.some(
     (employee) => !employee.startTime || !employee.endTime,
@@ -365,6 +414,7 @@ function App() {
                   result={settlement.employeeResults.find(
                     (item) => item.id === employee.id,
                   )}
+                  isDuplicate={duplicateStaffMemberIds.has(employee.staffMemberId)}
                   staffMembers={staffMembers}
                   onChange={updateEmployee}
                   onRemove={removeEmployee}
@@ -375,7 +425,7 @@ function App() {
             </div>
           </section>
 
-          <SettlementSummary settlement={settlement} />
+          <SettlementSummary settlement={settlement} warnings={settlementWarnings} />
 
           <section className="finish-panel">
             <button
@@ -417,4 +467,37 @@ export default App;
 
 function formatHourlyRateInput(value) {
   return String(value).replace(".", ",");
+}
+
+function getDuplicateStaffMemberIds(employees) {
+  const counts = new Map();
+
+  employees.forEach((employee) => {
+    if (!employee.staffMemberId) {
+      return;
+    }
+
+    counts.set(employee.staffMemberId, (counts.get(employee.staffMemberId) ?? 0) + 1);
+  });
+
+  return new Set(
+    [...counts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([staffMemberId]) => staffMemberId),
+  );
+}
+
+function getDuplicateStaffWarnings(employees, staffMembers, duplicateStaffMemberIds) {
+  if (duplicateStaffMemberIds.size === 0) {
+    return [];
+  }
+
+  const staffLookup = new Map(
+    staffMembers.map((staffMember) => [staffMember.id, staffMember.name]),
+  );
+  const duplicateNames = [...duplicateStaffMemberIds].map(
+    (staffMemberId) => staffLookup.get(staffMemberId) || "Ein Mitarbeiter",
+  );
+
+  return duplicateNames.map((name) => `${name} ist mehrfach eingetragen.`);
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { formatCurrency, formatHours } from "../lib/formatters";
 
-export function SettlementSummary({ settlement }) {
+export function SettlementSummary({ settlement, warnings = settlement.warnings }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -25,9 +25,9 @@ export function SettlementSummary({ settlement }) {
         </button>
       </div>
 
-      {settlement.warnings.length > 0 ? (
+      {warnings.length > 0 ? (
         <div className="warning-list" role="alert">
-          {settlement.warnings.map((warning) => (
+          {warnings.map((warning) => (
             <p key={warning}>{warning}</p>
           ))}
         </div>
