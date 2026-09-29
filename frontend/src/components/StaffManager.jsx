@@ -90,6 +90,12 @@ export function StaffManager({
       return;
     }
 
+    const shouldSave = window.confirm("Änderungen wirklich speichern?");
+
+    if (!shouldSave) {
+      return;
+    }
+
     onUpdateStaffMember(selectedStaffMember.id, {
       name: trimmedName,
       hourlyRate: parsedHourlyRate,
