@@ -346,6 +346,15 @@ input.invalid,
   font-weight: 850;
 }
 
+.employee-card-title .cash-badge {
+  border: 1px solid rgba(74, 222, 128, 0.36);
+  border-radius: 999px;
+  background: rgba(22, 101, 52, 0.22);
+  color: #86efac;
+  font-size: 0.72rem;
+  padding: 0.12rem 0.42rem;
+}
+
 .text-button {
   min-height: 2.75rem;
   border: 1px solid rgba(229, 199, 151, 0.22);

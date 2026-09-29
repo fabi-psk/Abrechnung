@@ -31,6 +31,7 @@ export function EmployeeCard({
       <div className="employee-card-header">
         <div className="employee-card-title">
           <h3>{employeeName}</h3>
+          {canReceiveCashWage ? <span className="cash-badge">Barlohn</span> : null}
           {!isExpanded && !hasMissingTime ? (
             <span>{formatHours(result?.hours ?? 0)}</span>
           ) : null}
