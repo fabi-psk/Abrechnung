@@ -506,18 +506,6 @@ input.invalid,
   padding: 1rem;
 }
 
-.finish-button {
-  width: 100%;
-  min-height: 3.5rem;
-  border: 0;
-  border-radius: 8px;
-  background: #f0c987;
-  color: #17120e;
-  font-size: 1.05rem;
-  font-weight: 900;
-  padding: 0.8rem 1rem;
-}
-
 .direct-print-button {
   width: 100%;
   min-height: 3.5rem;

@@ -3,10 +3,6 @@ import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { StaffManager } from "./components/StaffManager";
 import { calculateSettlement } from "./lib/calculations";
-import {
-  createSettlementPdf,
-  shareOrDownloadPdf,
-} from "./lib/pdfSettlement";
 import { printSettlementReceipt } from "./services/epsonPrinter";
 import {
   createStaffMember,
@@ -80,7 +76,6 @@ function App() {
   const [activePreset, setActivePreset] = useState(
     () => initialDraft?.activePreset ?? null,
   );
-  const [finishStatus, setFinishStatus] = useState("idle");
   const [epsonPrintStatus, setEpsonPrintStatus] = useState("idle");
 
   useEffect(() => {
@@ -225,23 +220,14 @@ function App() {
     );
   };
 
-  const finishSettlement = async () => {
-    const shouldFinish = window.confirm("Abrechnung wirklich fertigstellen?");
+  const openStaffManager = () => {
+    const shouldOpen = window.confirm("Mitarbeiterverwaltung öffnen?");
 
-    if (!shouldFinish) {
+    if (!shouldOpen) {
       return;
     }
 
-    setFinishStatus("working");
-
-    try {
-      const pdf = createSettlementPdf({ settlement, employees });
-      const result = await shareOrDownloadPdf(pdf);
-      setFinishStatus(result);
-    } catch (error) {
-      console.error(error);
-      setFinishStatus("failed");
-    }
+    setIsStaffManagerOpen(true);
   };
 
   const printSettlement = () => {
@@ -267,18 +253,6 @@ function App() {
     }
   };
 
-  const finishButtonLabel =
-    hasMissingEmployeeTimes
-      ? "Zeiten vollständig eintragen"
-      : finishStatus === "working"
-      ? "PDF wird erstellt..."
-      : finishStatus === "shared"
-        ? "PDF geteilt"
-        : finishStatus === "downloaded"
-          ? "PDF heruntergeladen"
-          : finishStatus === "failed"
-            ? "PDF erneut erstellen"
-            : "Abrechnung fertigstellen";
   const epsonPrintButtonLabel =
     hasMissingEmployeeTimes
       ? "Zeiten vollständig eintragen"
@@ -333,9 +307,7 @@ function App() {
                   className="wide-preset-button"
                   aria-expanded={isStaffManagerOpen}
                   type="button"
-                  onClick={() =>
-                    setIsStaffManagerOpen((currentValue) => !currentValue)
-                  }
+                  onClick={openStaffManager}
                 >
                   Mitarbeiter verwalten
                 </button>
@@ -428,14 +400,6 @@ function App() {
           <SettlementSummary settlement={settlement} warnings={settlementWarnings} />
 
           <section className="finish-panel">
-            <button
-              className="finish-button"
-              disabled={finishStatus === "working" || hasMissingEmployeeTimes}
-              type="button"
-              onClick={finishSettlement}
-            >
-              {finishButtonLabel}
-            </button>
             <button
               className="direct-print-button"
               disabled={epsonPrintStatus === "working" || hasMissingEmployeeTimes}
