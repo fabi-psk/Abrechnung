@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { StaffManager } from "./components/StaffManager";
@@ -77,6 +77,7 @@ function App() {
     () => initialDraft?.activePreset ?? null,
   );
   const [epsonPrintStatus, setEpsonPrintStatus] = useState("idle");
+  const pendingToggleAnchorRef = useRef(null);
 
   useEffect(() => {
     saveStaffMembers(staffMembers);
@@ -90,6 +91,31 @@ function App() {
       activePreset,
     });
   }, [cashRevenue, amountToSubmit, employees, activePreset]);
+
+  useLayoutEffect(() => {
+    const pendingAnchor = pendingToggleAnchorRef.current;
+
+    if (!pendingAnchor) {
+      return;
+    }
+
+    pendingToggleAnchorRef.current = null;
+
+    const toggleButton = document.querySelector(
+      `[data-employee-toggle-id="${pendingAnchor.employeeId}"]`,
+    );
+
+    if (!toggleButton) {
+      return;
+    }
+
+    const newTop = toggleButton.getBoundingClientRect().top;
+    window.scrollBy({
+      top: newTop - pendingAnchor.top,
+      left: 0,
+      behavior: "auto",
+    });
+  });
 
   const settlement = useMemo(
     () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
@@ -214,7 +240,8 @@ function App() {
     setActivePreset("weekend");
   };
 
-  const toggleEmployeeCard = (employeeId) => {
+  const toggleEmployeeCard = (employeeId, toggleTop) => {
+    pendingToggleAnchorRef.current = { employeeId, top: toggleTop };
     setExpandedEmployeeId((currentId) =>
       currentId === employeeId ? null : employeeId,
     );

@@ -38,6 +38,7 @@ export function EmployeeCard({
         </div>
         <button
           className="icon-toggle"
+          data-employee-toggle-id={employee.id}
           type="button"
           aria-expanded={isExpanded}
           aria-label={
@@ -45,7 +46,9 @@ export function EmployeeCard({
               ? `${employeeName} zuklappen`
               : `${employeeName} ausklappen`
           }
-          onClick={() => onToggle(employee.id)}
+          onClick={(event) =>
+            onToggle(employee.id, event.currentTarget.getBoundingClientRect().top)
+          }
         >
           <span className="chevron" aria-hidden="true" />
         </button>
