@@ -119,16 +119,25 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
   writer.separator();
   writer.space(5);
 
-  writer.heading("ABZUGEBEN");
   writer.row("Bargeld gesamt:", formatCurrencyForPdf(settlement.cashRevenue));
-  writer.row("Ausgangsbetrag:", formatCurrencyForPdf(settlement.amountToSubmit));
+  writer.row("Gesamt Abzugeben:", formatCurrencyForPdf(settlement.amountToSubmit));
+  writer.space(7);
+
   writer.row(
-    "- ausgez. Lohn:",
+    "- ausgez. Barloehne:",
     formatCurrencyForPdf(settlement.paidOutCashWagesTotal),
+  );
+  writer.row(
+    "- offene Barloehne:",
+    formatCurrencyForPdf(settlement.openCashWagesTotal),
+  );
+  writer.space(7);
+  writer.importantResult(
+    "Abzugeben nach Lohn:",
+    formatCurrencyForPdf(settlement.amountToHandOver),
   );
   writer.space(7);
 
-  writer.heading("PERSONAL");
   writer.separator();
   writer.space(4);
 
@@ -153,18 +162,8 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
     }
   });
 
-  writer.space(5);
-  writer.separator();
-  writer.row("Barlohn gesamt:", formatCurrencyForPdf(settlement.cashWagesTotal), {
-    boldValue: true,
-  });
-  writer.row("Bereits ausgezahlt:", formatCurrencyForPdf(settlement.paidOutCashWagesTotal));
-  writer.row("Noch auszuzahlen:", formatCurrencyForPdf(settlement.openCashWagesTotal), {
-    boldValue: true,
-  });
   writer.space(8);
 
-  writer.heading("TRINKGELD");
   writer.separator();
   writer.row("Trinkgeld gesamt:", formatCurrencyForPdf(settlement.totalTips), {
     boldValue: true,
@@ -182,9 +181,6 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
   }
 
   writer.space(7);
-  writer.separator();
-  writer.heading("ABZUGEBEN");
-  writer.bigAmount(formatCurrencyForPdf(settlement.amountToHandOver));
   writer.separator();
 
   const blob = writer.finish();
@@ -284,6 +280,24 @@ function createReceiptPdfWriter() {
     heading(value) {
       api.text(value, RECEIPT_MARGIN, 9, { bold: true, lineHeight: 12 });
     },
+    importantHeading(value) {
+      api.text(value, RECEIPT_WIDTH / 2, 11, {
+        align: "center",
+        bold: true,
+        lineHeight: 16,
+      });
+    },
+    importantResult(label, value) {
+      api.text(label, RECEIPT_MARGIN, 12, {
+        bold: true,
+        lineHeight: 0,
+      });
+      api.text(value, RECEIPT_WIDTH - RECEIPT_MARGIN, 12, {
+        align: "right",
+        bold: true,
+        lineHeight: 17,
+      });
+    },
     row(label, value, options = {}) {
       const size = options.size ?? 8.6;
       const labelX = RECEIPT_MARGIN + (options.indent ?? 0);
@@ -298,11 +312,11 @@ function createReceiptPdfWriter() {
         api.text(line, RECEIPT_MARGIN, size, options);
       });
     },
-    bigAmount(value) {
-      api.text(value, RECEIPT_WIDTH - RECEIPT_MARGIN, 13, {
+    bigAmount(value, size = 13) {
+      api.text(value, RECEIPT_WIDTH - RECEIPT_MARGIN, size, {
         align: "right",
         bold: true,
-        lineHeight: 17,
+        lineHeight: size + 4,
       });
     },
     separator() {

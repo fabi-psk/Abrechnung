@@ -518,10 +518,66 @@ input.invalid,
   padding: 0.8rem 1rem;
 }
 
+.preview-print-button {
+  width: 100%;
+  min-height: 3.35rem;
+  border: 1px solid rgba(229, 199, 151, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.06);
+  color: #ffe0a3;
+  font-size: 1rem;
+  font-weight: 850;
+  padding: 0.75rem 1rem;
+}
+
 .print-status-message {
   margin: 0;
   color: #cbbfae;
   font-size: 0.9rem;
+}
+
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  align-items: end;
+  background: rgba(0, 0, 0, 0.72);
+  padding: 0.85rem;
+}
+
+.print-preview-panel {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 30rem);
+  max-height: min(88vh, 44rem);
+  margin: 0 auto;
+  border: 1px solid rgba(229, 199, 151, 0.18);
+  border-radius: 8px;
+  background: #15130f;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.print-preview-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.receipt-preview {
+  width: min(100%, 23rem);
+  margin: 0 auto;
+  border-radius: 4px;
+  background: #fffaf0;
+  color: #17120e;
+  font-family: "Courier New", ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  overflow-x: auto;
+  padding: 1rem 0.8rem;
+  white-space: pre;
 }
 
 .summary-header {

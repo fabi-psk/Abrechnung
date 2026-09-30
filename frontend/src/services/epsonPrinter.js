@@ -21,8 +21,23 @@ export function printSettlementReceipt({ settlement, employees }) {
   window.location.href = url;
 }
 
+export function createSettlementReceiptPreview({ settlement, employees }) {
+  const writer = createPlainReceiptWriter();
+
+  writeSettlementReceipt({ settlement, employees, writer });
+
+  return writer.finish();
+}
+
 export function createSettlementReceiptXml({ settlement, employees }) {
   const writer = createEposReceiptWriter();
+
+  writeSettlementReceipt({ settlement, employees, writer });
+
+  return writer.finish();
+}
+
+function writeSettlementReceipt({ settlement, employees, writer }) {
   const now = new Date();
   const titleDate = now.toLocaleDateString("de-DE");
   const employeeLookup = new Map(employees.map((employee) => [employee.id, employee]));
@@ -33,15 +48,27 @@ export function createSettlementReceiptXml({ settlement, employees }) {
   writer.separator();
   writer.feed();
 
-  writer.heading("ABZUGEBEN");
   writer.row("Bargeld gesamt:", formatCurrency(settlement.cashRevenue));
-  writer.row("Ausgangsbetrag:", formatCurrency(settlement.amountToSubmit), {
+  writer.row("Gesamt Abzugeben:", formatCurrency(settlement.amountToSubmit), {
     bold: true,
   });
-  writer.row("- ausgez. Lohn:", formatCurrency(settlement.paidOutCashWagesTotal));
   writer.feed();
 
-  writer.heading("PERSONAL");
+  writer.row(
+    "- ausgez. Barloehne:",
+    formatCurrency(settlement.paidOutCashWagesTotal),
+  );
+  writer.row(
+    "- offene Barloehne:",
+    formatCurrency(settlement.openCashWagesTotal),
+  );
+  writer.feed();
+  writer.importantResult(
+    "Abzugeben nach Lohn:",
+    formatCurrency(settlement.amountToHandOver),
+  );
+  writer.feed();
+
   writer.separator("-");
 
   settlement.employeeResults.forEach((result, index) => {
@@ -66,17 +93,7 @@ export function createSettlementReceiptXml({ settlement, employees }) {
   });
 
   writer.feed();
-  writer.separator("-");
-  writer.row("Barlohn gesamt:", formatCurrency(settlement.cashWagesTotal), {
-    bold: true,
-  });
-  writer.row("Bereits ausgezahlt:", formatCurrency(settlement.paidOutCashWagesTotal));
-  writer.row("Noch auszuzahlen:", formatCurrency(settlement.openCashWagesTotal), {
-    bold: true,
-  });
-  writer.feed();
 
-  writer.heading("TRINKGELD");
   writer.separator("-");
   writer.row("Trinkgeld gesamt:", formatCurrency(settlement.totalTips), {
     bold: true,
@@ -90,15 +107,9 @@ export function createSettlementReceiptXml({ settlement, employees }) {
     });
   }
 
-  writer.feed();
-  writer.separator();
-  writer.heading("ABZUGEBEN");
-  writer.bigAmount(formatCurrency(settlement.amountToHandOver));
   writer.separator();
   writer.feed(3);
   writer.cut();
-
-  return writer.finish();
 }
 
 function createTmPrintAssistantUrl(xml) {
@@ -130,6 +141,20 @@ function createEposReceiptWriter() {
     heading(value) {
       api.text(value, { bold: true });
     },
+    importantHeading(value) {
+      api.text(value, {
+        align: "center",
+        bold: true,
+        width: 2,
+        height: 2,
+      });
+    },
+    importantResult(label, value) {
+      api.text(formatRow(label, value), {
+        bold: true,
+        height: 2,
+      });
+    },
     row(label, value, options = {}) {
       const indent = " ".repeat(options.indent ?? 0);
       api.text(formatRow(`${indent}${label}`, value), { bold: options.bold });
@@ -159,6 +184,63 @@ function createEposReceiptWriter() {
     finish() {
       commands.push("</epos-print>");
       return commands.join("");
+    },
+  };
+
+  return api;
+}
+
+function createPlainReceiptWriter() {
+  const lines = [];
+
+  const api = {
+    text(value, options = {}) {
+      const text = normalizeText(value);
+      const formattedText = options.align === "center"
+        ? centerText(text, RECEIPT_COLUMNS)
+        : options.align === "right"
+          ? text.padStart(RECEIPT_COLUMNS)
+          : text;
+
+      lines.push(options.bold ? formattedText.toUpperCase() : formattedText);
+    },
+    center(value, options = {}) {
+      api.text(value, { ...options, align: "center" });
+    },
+    heading(value) {
+      api.text(value, { bold: true });
+    },
+    importantHeading(value) {
+      api.separator("-");
+      api.text(value, { align: "center", bold: true });
+      api.separator("-");
+    },
+    importantResult(label, value) {
+      api.text(formatRow(label, value), { bold: true });
+    },
+    row(label, value, options = {}) {
+      const indent = " ".repeat(options.indent ?? 0);
+      api.text(formatRow(`${indent}${label}`, value), { bold: options.bold });
+    },
+    wrap(value, options = {}) {
+      wrapText(normalizeText(value), RECEIPT_COLUMNS).forEach((line) => {
+        api.text(line, options);
+      });
+    },
+    bigAmount(value) {
+      api.text(value, { align: "right", bold: true });
+    },
+    separator(character = "=") {
+      api.text(character.repeat(RECEIPT_COLUMNS));
+    },
+    feed(linesCount = 1) {
+      for (let index = 0; index < linesCount; index += 1) {
+        lines.push("");
+      }
+    },
+    cut() {},
+    finish() {
+      return lines.join("\n").trimEnd();
     },
   };
 
@@ -246,6 +328,14 @@ function wrapText(value, maxLength) {
 
 function truncateText(value, maxLength) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 1)}.` : value;
+}
+
+function centerText(value, width) {
+  if (value.length >= width) {
+    return value;
+  }
+
+  return `${" ".repeat(Math.floor((width - value.length) / 2))}${value}`;
 }
 
 function normalizeText(value) {

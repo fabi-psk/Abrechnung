@@ -3,7 +3,10 @@ import { EmployeeCard } from "./components/EmployeeCard";
 import { SettlementSummary } from "./components/SettlementSummary";
 import { StaffManager } from "./components/StaffManager";
 import { calculateSettlement } from "./lib/calculations";
-import { printSettlementReceipt } from "./services/epsonPrinter";
+import {
+  createSettlementReceiptPreview,
+  printSettlementReceipt,
+} from "./services/epsonPrinter";
 import {
   createStaffMember,
   loadStaffMembers,
@@ -72,6 +75,7 @@ function App() {
   );
   const [staffMembers, setStaffMembers] = useState(loadStaffMembers);
   const [isStaffManagerOpen, setIsStaffManagerOpen] = useState(false);
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [expandedEmployeeId, setExpandedEmployeeId] = useState(null);
   const [activePreset, setActivePreset] = useState(
     () => initialDraft?.activePreset ?? null,
@@ -428,6 +432,14 @@ function App() {
 
           <section className="finish-panel">
             <button
+              className="preview-print-button"
+              disabled={hasMissingEmployeeTimes}
+              type="button"
+              onClick={() => setIsPrintPreviewOpen(true)}
+            >
+              Druckvorschau ansehen
+            </button>
+            <button
               className="direct-print-button"
               disabled={epsonPrintStatus === "working" || hasMissingEmployeeTimes}
               type="button"
@@ -448,6 +460,31 @@ function App() {
               </p>
             ) : null}
           </section>
+
+          {isPrintPreviewOpen ? (
+            <div
+              className="preview-overlay"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="print-preview-heading"
+            >
+              <section className="print-preview-panel">
+                <div className="print-preview-header">
+                  <h2 id="print-preview-heading">Druckvorschau</h2>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => setIsPrintPreviewOpen(false)}
+                  >
+                    Schliessen
+                  </button>
+                </div>
+                <pre className="receipt-preview">
+                  {createSettlementReceiptPreview({ settlement, employees })}
+                </pre>
+              </section>
+            </div>
+          ) : null}
         </>
       )}
     </main>
