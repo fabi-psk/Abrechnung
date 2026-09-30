@@ -3,6 +3,8 @@ import { formatCurrency, formatHours } from "../lib/formatters";
 
 export function SettlementSummary({ settlement, warnings = settlement.warnings }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isTipsPerHourInTargetRange =
+    settlement.tipsPerHour >= 6 && settlement.tipsPerHour <= 8;
 
   return (
     <section className="summary-panel" aria-labelledby="summary-heading">
@@ -47,7 +49,7 @@ export function SettlementSummary({ settlement, warnings = settlement.warnings }
               variant="info"
             />
             <SummaryItem
-              label="Bereits ausgezahlter Lohn"
+              label="Bereits ausgezahlte Barlöhne"
               value={`- ${formatCurrency(settlement.paidOutCashWagesTotal)}`}
               variant="danger"
             />
@@ -69,7 +71,7 @@ export function SettlementSummary({ settlement, warnings = settlement.warnings }
             <SummaryItem
               label="Trinkgeld pro Stunde"
               value={formatCurrency(settlement.tipsPerHour)}
-              variant="muted"
+              variant={isTipsPerHourInTargetRange ? "success" : "danger"}
             />
             <SummaryItem
               label="Gesamtstunden"

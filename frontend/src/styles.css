@@ -652,6 +652,11 @@ input.invalid,
   background: rgba(203, 191, 174, 0.08);
 }
 
+.summary-grid .summary-item-danger {
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  background: rgba(127, 29, 29, 0.28);
+}
+
 .summary-grid dt,
 .summary-quick dt {
   color: #b5aa9b;
@@ -694,6 +699,10 @@ input.invalid,
 
 .summary-grid .summary-item-positive dd {
   color: #86efac;
+}
+
+.summary-grid .summary-item-danger dt {
+  color: #fecaca;
 }
 
 .summary-grid .summary-item-danger dd {
