@@ -33,14 +33,13 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
     0,
   );
   const openCashWagesTotal = cashWagesTotal - paidOutCashWagesTotal;
-  const cashRevenueWithPaidOutWages =
-    cashRevenueAmount + paidOutCashWagesTotal;
+  const adjustedAmountToSubmit = amountToSubmitValue - paidOutCashWagesTotal;
   const totalHours = employeeResults.reduce(
     (sum, employee) => sum + employee.hours,
     0,
   );
-  const totalTips = cashRevenueWithPaidOutWages - amountToSubmitValue;
-  const amountToHandOver = amountToSubmitValue - openCashWagesTotal;
+  const totalTips = cashRevenueAmount - adjustedAmountToSubmit;
+  const amountToHandOver = adjustedAmountToSubmit - openCashWagesTotal;
   const canCalculateTips = totalHours > 0 && totalTips >= 0;
   const tipsPerHour = canCalculateTips ? totalTips / totalHours : 0;
 
@@ -58,7 +57,7 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
 
   return {
     cashRevenue: cashRevenueAmount,
-    cashRevenueWithPaidOutWages,
+    adjustedAmountToSubmit,
     amountToSubmit: amountToSubmitValue,
     amountToHandOver,
     cashWagesTotal,
@@ -69,8 +68,8 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
     tipsPerHour,
     employeeResults: resultsWithTips,
     warnings: createWarnings({
-      cashRevenueWithPaidOutWages,
-      amountToSubmit: amountToSubmitValue,
+      cashRevenue: cashRevenueAmount,
+      adjustedAmountToSubmit,
       amountToHandOver,
       employees,
       totalHours,
@@ -127,23 +126,23 @@ function parsePositiveNumber(value) {
 }
 
 function createWarnings({
-  cashRevenueWithPaidOutWages,
-  amountToSubmit,
+  cashRevenue,
+  adjustedAmountToSubmit,
   amountToHandOver,
   employees,
   totalHours,
 }) {
   const warnings = [];
 
-  if (amountToSubmit > cashRevenueWithPaidOutWages) {
+  if (adjustedAmountToSubmit > cashRevenue) {
     warnings.push(
-      "Gesamt Abzugeben ist größer als Bargeld gesamt mit ausgezahltem Lohn.",
+      "Gesamt Abzugeben abzüglich bereits ausgezahltem Lohn ist größer als Bargeld gesamt.",
     );
   }
 
   if (amountToHandOver < 0) {
     warnings.push(
-      "Die offenen Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
+      "Die bereits ausgezahlten und offenen Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
     );
   }
 

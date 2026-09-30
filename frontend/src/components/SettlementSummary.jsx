@@ -42,19 +42,14 @@ export function SettlementSummary({ settlement, warnings = settlement.warnings }
               variant="info"
             />
             <SummaryItem
-              label="Bereits ausgezahlter Lohn"
-              value={`+ ${formatCurrency(settlement.paidOutCashWagesTotal)}`}
-              variant="positive"
-            />
-            <SummaryItem
-              label="Bargeld gesamt mit ausgezahltem Lohn"
-              value={formatCurrency(settlement.cashRevenueWithPaidOutWages)}
-              variant="info"
-            />
-            <SummaryItem
               label="Gesamt Abzugeben"
               value={formatCurrency(settlement.amountToSubmit)}
               variant="info"
+            />
+            <SummaryItem
+              label="Bereits ausgezahlter Lohn"
+              value={`- ${formatCurrency(settlement.paidOutCashWagesTotal)}`}
+              variant="danger"
             />
             <SummaryItem
               label="Noch auszuzahlende Barlöhne"

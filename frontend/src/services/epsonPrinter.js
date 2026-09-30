@@ -35,14 +35,10 @@ export function createSettlementReceiptXml({ settlement, employees }) {
 
   writer.heading("ABZUGEBEN");
   writer.row("Bargeld gesamt:", formatCurrency(settlement.cashRevenue));
-  writer.row("+ ausgez. Lohn:", formatCurrency(settlement.paidOutCashWagesTotal));
-  writer.row(
-    "Berechnet mit:",
-    formatCurrency(settlement.cashRevenueWithPaidOutWages),
-  );
   writer.row("Ausgangsbetrag:", formatCurrency(settlement.amountToSubmit), {
     bold: true,
   });
+  writer.row("- ausgez. Lohn:", formatCurrency(settlement.paidOutCashWagesTotal));
   writer.feed();
 
   writer.heading("PERSONAL");

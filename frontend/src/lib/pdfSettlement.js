@@ -48,15 +48,11 @@ export function createSettlementPdf({ settlement, employees }) {
 
   const summaryRows = [
     ["Bargeld gesamt", formatCurrencyForPdf(settlement.cashRevenue)],
+    ["Gesamt Abzugeben", formatCurrencyForPdf(settlement.amountToSubmit)],
     [
       "Bereits ausgezahlter Lohn",
-      formatCurrencyForPdf(settlement.paidOutCashWagesTotal),
+      `- ${formatCurrencyForPdf(settlement.paidOutCashWagesTotal)}`,
     ],
-    [
-      "Bargeld gesamt mit Lohn",
-      formatCurrencyForPdf(settlement.cashRevenueWithPaidOutWages),
-    ],
-    ["Gesamt Abzugeben", formatCurrencyForPdf(settlement.amountToSubmit)],
     [
       "Noch auszuzahlende Barloehne",
       formatCurrencyForPdf(settlement.openCashWagesTotal),
@@ -125,15 +121,11 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
 
   writer.heading("ABZUGEBEN");
   writer.row("Bargeld gesamt:", formatCurrencyForPdf(settlement.cashRevenue));
+  writer.row("Ausgangsbetrag:", formatCurrencyForPdf(settlement.amountToSubmit));
   writer.row(
-    "+ ausgez. Lohn:",
+    "- ausgez. Lohn:",
     formatCurrencyForPdf(settlement.paidOutCashWagesTotal),
   );
-  writer.row(
-    "Berechnet mit:",
-    formatCurrencyForPdf(settlement.cashRevenueWithPaidOutWages),
-  );
-  writer.row("Ausgangsbetrag:", formatCurrencyForPdf(settlement.amountToSubmit));
   writer.space(7);
 
   writer.heading("PERSONAL");
