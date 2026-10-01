@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import { calculateSettlement } from "../src/lib/calculations.js";
+import {
+  formatSettlementFileDate,
+  getSettlementDate,
+} from "../src/lib/settlementDate.js";
 
 const employee = {
   id: "1",
@@ -139,3 +143,46 @@ for (const testCase of testCases) {
 }
 
 console.log(`${testCases.length} calculation tests passed.`);
+
+const overnightEmployees = [
+  {
+    ...employee,
+    startTime: "18:00",
+    endTime: "02:00",
+  },
+];
+
+assert.equal(
+  formatSettlementFileDate(
+    getSettlementDate({
+      employees: overnightEmployees,
+      now: new Date(2026, 9, 2, 3, 0),
+    }),
+  ),
+  "2026-10-01",
+  "overnight shifts printed after midnight use the shift start date",
+);
+
+assert.equal(
+  formatSettlementFileDate(
+    getSettlementDate({
+      employees: overnightEmployees,
+      now: new Date(2026, 9, 1, 23, 0),
+    }),
+  ),
+  "2026-10-01",
+  "overnight shifts printed before midnight keep the current date",
+);
+
+assert.equal(
+  formatSettlementFileDate(
+    getSettlementDate({
+      employees: [{ ...employee, startTime: "10:00", endTime: "18:00" }],
+      now: new Date(2026, 9, 2, 3, 0),
+    }),
+  ),
+  "2026-10-02",
+  "same-day shifts keep the print date",
+);
+
+console.log("3 settlement date tests passed.");

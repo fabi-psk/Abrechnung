@@ -1,3 +1,8 @@
+import {
+  formatSettlementDisplayDate,
+  getSettlementDate,
+} from "../lib/settlementDate";
+
 const TM_PRINT_ASSISTANT_URL =
   import.meta.env.VITE_TM_PRINT_ASSISTANT_URL ||
   "tmprintassistant://tmprintassistant.epson.com/print";
@@ -38,8 +43,9 @@ export function createSettlementReceiptXml({ settlement, employees }) {
 }
 
 function writeSettlementReceipt({ settlement, employees, writer }) {
-  const now = new Date();
-  const titleDate = now.toLocaleDateString("de-DE");
+  const titleDate = formatSettlementDisplayDate(
+    getSettlementDate({ employees }),
+  );
   const employeeLookup = new Map(employees.map((employee) => [employee.id, employee]));
 
   writer.separator();

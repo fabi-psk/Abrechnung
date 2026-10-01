@@ -1,3 +1,9 @@
+import {
+  formatSettlementDisplayDate,
+  formatSettlementFileDate,
+  getSettlementDate,
+} from "./settlementDate";
+
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
@@ -19,9 +25,9 @@ const numberFormatter = new Intl.NumberFormat("de-DE", {
 
 export function createSettlementPdf({ settlement, employees }) {
   const writer = createPdfWriter();
-  const now = new Date();
-  const titleDate = now.toLocaleDateString("de-DE");
-  const fileDate = now.toISOString().slice(0, 10);
+  const settlementDate = getSettlementDate({ employees });
+  const titleDate = formatSettlementDisplayDate(settlementDate);
+  const fileDate = formatSettlementFileDate(settlementDate);
   let y = MARGIN;
 
   const page = () => writer.currentPage;
@@ -111,9 +117,9 @@ export function createSettlementPdf({ settlement, employees }) {
 
 export function createReceiptSettlementPdf({ settlement, employees }) {
   const writer = createReceiptPdfWriter();
-  const now = new Date();
-  const titleDate = now.toLocaleDateString("de-DE");
-  const fileDate = now.toISOString().slice(0, 10);
+  const settlementDate = getSettlementDate({ employees });
+  const titleDate = formatSettlementDisplayDate(settlementDate);
+  const fileDate = formatSettlementFileDate(settlementDate);
   const employeeLookup = new Map(employees.map((employee) => [employee.id, employee]));
 
   writer.separator();
