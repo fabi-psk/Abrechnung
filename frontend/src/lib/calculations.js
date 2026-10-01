@@ -1,6 +1,6 @@
 export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) {
   const cashRevenueAmount = parsePositiveNumber(cashRevenue);
-  const amountToSubmitValue = parsePositiveNumber(amountToSubmit);
+  const amountToSubmitValue = parseNumber(amountToSubmit);
 
   const employeeResults = employees.map((employee) => {
     const hours = calculateShiftHours(employee.startTime, employee.endTime);
@@ -116,9 +116,19 @@ function parseTimeToMinutes(timeValue) {
 }
 
 function parsePositiveNumber(value) {
-  const number = Number(String(value).replace(",", "."));
+  const number = parseNumber(value);
 
   if (!Number.isFinite(number) || number < 0) {
+    return 0;
+  }
+
+  return number;
+}
+
+function parseNumber(value) {
+  const number = Number(String(value).replace(",", "."));
+
+  if (!Number.isFinite(number)) {
     return 0;
   }
 

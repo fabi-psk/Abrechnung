@@ -382,7 +382,7 @@ function App() {
                 autoComplete="off"
                 autoCorrect="off"
                 inputMode="decimal"
-                pattern="[0-9]*[,.]?[0-9]*"
+                pattern="-?[0-9]*[,.]?[0-9]*"
                 placeholder="0,00"
                 type="text"
                 value={amountToSubmit}
