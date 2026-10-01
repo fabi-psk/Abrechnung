@@ -284,6 +284,18 @@ function App() {
     }
   };
 
+  const toggleAmountToSubmitSign = () => {
+    setAmountToSubmit((currentValue) => {
+      const trimmedValue = currentValue.trim();
+
+      if (trimmedValue.startsWith("-")) {
+        return trimmedValue.slice(1);
+      }
+
+      return `-${trimmedValue}`;
+    });
+  };
+
   const epsonPrintButtonLabel =
     hasMissingEmployeeTimes
       ? "Zeiten vollständig eintragen"
@@ -374,21 +386,32 @@ function App() {
               />
             </label>
 
-            <label className="field-label" htmlFor="amount-to-submit">
-              <span>Gesamt Abzugeben</span>
-              <input
-                id="amount-to-submit"
-                className="amount-input"
-                autoComplete="off"
-                autoCorrect="off"
-                inputMode="decimal"
-                pattern="-?[0-9]*[,.]?[0-9]*"
-                placeholder="0,00"
-                type="text"
-                value={amountToSubmit}
-                onChange={(event) => setAmountToSubmit(event.target.value)}
-              />
-            </label>
+            <div className="field-label">
+              <label htmlFor="amount-to-submit">Gesamt Abzugeben</label>
+              <div className="signed-amount-control">
+                <input
+                  id="amount-to-submit"
+                  className="amount-input"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  inputMode="decimal"
+                  pattern="-?[0-9]*[,.]?[0-9]*"
+                  placeholder="0,00"
+                  type="text"
+                  value={amountToSubmit}
+                  onChange={(event) => setAmountToSubmit(event.target.value)}
+                />
+                <button
+                  className="amount-sign-button"
+                  type="button"
+                  aria-label="Minuszeichen umschalten"
+                  aria-pressed={amountToSubmit.trim().startsWith("-")}
+                  onClick={toggleAmountToSubmitSign}
+                >
+                  -
+                </button>
+              </div>
+            </div>
           </section>
 
           <section className="section-block" aria-labelledby="employees-heading">
