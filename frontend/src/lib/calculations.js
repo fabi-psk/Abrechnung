@@ -1,6 +1,12 @@
-export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) {
+export function calculateSettlement({
+  cashRevenue,
+  amountToSubmit,
+  walletCash,
+  employees,
+}) {
   const cashRevenueAmount = parsePositiveNumber(cashRevenue);
   const amountToSubmitValue = parseNumber(amountToSubmit);
+  const hasNegativeAmountToSubmit = amountToSubmitValue < 0;
 
   const employeeResults = employees.map((employee) => {
     const hours = calculateShiftHours(employee.startTime, employee.endTime);
@@ -34,13 +40,37 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
   );
   const openCashWagesTotal = cashWagesTotal - paidOutCashWagesTotal;
   const adjustedAmountToSubmit = amountToSubmitValue - paidOutCashWagesTotal;
+  const walletCashAmount = hasNegativeAmountToSubmit
+    ? parsePositiveNumber(walletCash)
+    : null;
+  const negativeAmountBudget = hasNegativeAmountToSubmit
+    ? Math.abs(amountToSubmitValue)
+    : 0;
+  const walletTopUpAmount =
+    walletCashAmount === null ? 0 : Math.max(0, 100 - walletCashAmount);
+  const walletTopUpFromNegativeAmount = Math.min(
+    walletTopUpAmount,
+    negativeAmountBudget,
+  );
+  const walletTopUpShortfall = Math.max(
+    0,
+    walletTopUpAmount - negativeAmountBudget,
+  );
+  const isWalletReady = walletCashAmount === null || walletCashAmount === 100;
+  const canFillWallet =
+    walletCashAmount === null ||
+    (walletCashAmount <= 100 && walletTopUpAmount <= negativeAmountBudget);
   const totalHours = employeeResults.reduce(
     (sum, employee) => sum + employee.hours,
     0,
   );
-  const totalTips = cashRevenueAmount - adjustedAmountToSubmit;
+  const calculatedTotalTips = hasNegativeAmountToSubmit
+    ? cashRevenueAmount + negativeAmountBudget - walletTopUpFromNegativeAmount
+    : cashRevenueAmount - adjustedAmountToSubmit;
   const amountToHandOver = adjustedAmountToSubmit - openCashWagesTotal;
-  const canCalculateTips = totalHours > 0 && totalTips >= 0;
+  const canCalculateTips =
+    totalHours > 0 && calculatedTotalTips >= 0 && canFillWallet;
+  const totalTips = canCalculateTips ? calculatedTotalTips : 0;
   const tipsPerHour = canCalculateTips ? totalTips / totalHours : 0;
 
   const resultsWithTips = employeeResults.map((employee) => {
@@ -59,6 +89,12 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
     cashRevenue: cashRevenueAmount,
     adjustedAmountToSubmit,
     amountToSubmit: amountToSubmitValue,
+    walletCash: walletCashAmount,
+    walletTopUpAmount,
+    walletTopUpFromNegativeAmount,
+    walletTopUpShortfall,
+    isWalletReady,
+    canFillWallet,
     amountToHandOver,
     cashWagesTotal,
     paidOutCashWagesTotal,
@@ -71,6 +107,12 @@ export function calculateSettlement({ cashRevenue, amountToSubmit, employees }) 
       cashRevenue: cashRevenueAmount,
       adjustedAmountToSubmit,
       amountToHandOver,
+      hasNegativeAmountToSubmit,
+      walletCash: walletCashAmount,
+      walletTopUpAmount,
+      walletTopUpShortfall,
+      isWalletReady,
+      canFillWallet,
       employees,
       totalHours,
     }),
@@ -139,6 +181,12 @@ function createWarnings({
   cashRevenue,
   adjustedAmountToSubmit,
   amountToHandOver,
+  hasNegativeAmountToSubmit,
+  walletCash,
+  walletTopUpAmount,
+  walletTopUpShortfall,
+  isWalletReady,
+  canFillWallet,
   employees,
   totalHours,
 }) {
@@ -150,10 +198,26 @@ function createWarnings({
     );
   }
 
-  if (amountToHandOver < 0) {
+  if (!hasNegativeAmountToSubmit && amountToHandOver < 0) {
     warnings.push(
       "Die bereits ausgezahlten und offenen Barlöhne sind höher als Gesamt Abzugeben. Abzugeben nach Lohn ist deshalb negativ.",
     );
+  }
+
+  if (walletCash !== null && !isWalletReady) {
+    if (walletCash > 100) {
+      warnings.push(
+        `Bargeld im Portmonee muss genau 100,00 Euro sein. Es sind ${formatWarningCurrency(walletCash - 100)} zu viel.`,
+      );
+    } else if (canFillWallet) {
+      warnings.push(
+        `Bargeld im Portmonee wird mit ${formatWarningCurrency(walletTopUpAmount)} aus Gesamt Abzugeben auf 100,00 Euro aufgefüllt.`,
+      );
+    } else {
+      warnings.push(
+        `Der negative Betrag reicht nicht, um das Portmonee auf 100,00 Euro aufzufüllen. Es fehlen ${formatWarningCurrency(walletTopUpShortfall)}.`,
+      );
+    }
   }
 
   if (totalHours === 0) {
@@ -169,4 +233,11 @@ function createWarnings({
   }
 
   return warnings;
+}
+
+function formatWarningCurrency(value) {
+  return `${new Intl.NumberFormat("de-DE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} Euro`;
 }

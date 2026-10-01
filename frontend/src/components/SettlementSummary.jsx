@@ -48,6 +48,13 @@ export function SettlementSummary({ settlement, warnings = settlement.warnings }
               value={formatCurrency(settlement.amountToSubmit)}
               variant="info"
             />
+            {settlement.walletCash !== null ? (
+              <SummaryItem
+                label="Bargeld im Portmonee"
+                value={formatCurrency(settlement.walletCash)}
+                variant={settlement.isWalletReady ? "success" : "danger"}
+              />
+            ) : null}
             <SummaryItem
               label="Bereits ausgezahlte Barlöhne"
               value={`- ${formatCurrency(settlement.paidOutCashWagesTotal)}`}

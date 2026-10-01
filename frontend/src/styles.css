@@ -202,6 +202,18 @@ input.invalid,
   color: #17120e;
 }
 
+.wallet-input-ready {
+  border-color: rgba(74, 222, 128, 0.62);
+  background: rgba(22, 101, 52, 0.28);
+  color: #86efac;
+}
+
+.wallet-input-needs-fill {
+  border-color: rgba(248, 113, 113, 0.52);
+  background: rgba(127, 29, 29, 0.22);
+  color: #fca5a5;
+}
+
 .add-button {
   width: 100%;
   min-height: 3.4rem;

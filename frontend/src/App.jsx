@@ -67,6 +67,9 @@ function App() {
   const [amountToSubmit, setAmountToSubmit] = useState(
     () => initialDraft?.amountToSubmit ?? "",
   );
+  const [walletCash, setWalletCash] = useState(
+    () => initialDraft?.walletCash ?? "",
+  );
   const [employees, setEmployees] = useState(
     () =>
       initialDraft?.employees
@@ -91,10 +94,11 @@ function App() {
     saveSettlementDraft({
       cashRevenue,
       amountToSubmit,
+      walletCash,
       employees,
       activePreset,
     });
-  }, [cashRevenue, amountToSubmit, employees, activePreset]);
+  }, [cashRevenue, amountToSubmit, walletCash, employees, activePreset]);
 
   useLayoutEffect(() => {
     const pendingAnchor = pendingToggleAnchorRef.current;
@@ -122,8 +126,14 @@ function App() {
   });
 
   const settlement = useMemo(
-    () => calculateSettlement({ cashRevenue, amountToSubmit, employees }),
-    [cashRevenue, amountToSubmit, employees],
+    () =>
+      calculateSettlement({
+        cashRevenue,
+        amountToSubmit,
+        walletCash,
+        employees,
+      }),
+    [cashRevenue, amountToSubmit, walletCash, employees],
   );
   const duplicateStaffMemberIds = useMemo(
     () => getDuplicateStaffMemberIds(employees),
@@ -140,6 +150,7 @@ function App() {
   const hasMissingEmployeeTimes = employees.some(
     (employee) => !employee.startTime || !employee.endTime,
   );
+  const shouldShowWalletCashInput = amountToSubmit.trim().startsWith("-");
 
   const updateEmployee = (id, updates) => {
     setEmployees((currentEmployees) =>
@@ -227,6 +238,7 @@ function App() {
 
     setCashRevenue("");
     setAmountToSubmit("");
+    setWalletCash("");
     setEmployees(createInitialEmployees());
     setExpandedEmployeeId(null);
     setActivePreset(null);
@@ -412,6 +424,28 @@ function App() {
                 </button>
               </div>
             </div>
+
+            {shouldShowWalletCashInput ? (
+              <label className="field-label" htmlFor="wallet-cash">
+                <span>Bargeld im Portmonee</span>
+                <input
+                  id="wallet-cash"
+                  className={`amount-input ${
+                    settlement.isWalletReady
+                      ? "wallet-input-ready"
+                      : "wallet-input-needs-fill"
+                  }`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  inputMode="decimal"
+                  pattern="[0-9]*[,.]?[0-9]*"
+                  placeholder="100,00"
+                  type="text"
+                  value={walletCash}
+                  onChange={(event) => setWalletCash(event.target.value)}
+                />
+              </label>
+            ) : null}
           </section>
 
           <section className="section-block" aria-labelledby="employees-heading">

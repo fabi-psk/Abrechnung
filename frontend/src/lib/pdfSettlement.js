@@ -49,6 +49,9 @@ export function createSettlementPdf({ settlement, employees }) {
   const summaryRows = [
     ["Bargeld gesamt", formatCurrencyForPdf(settlement.cashRevenue)],
     ["Gesamt Abzugeben", formatCurrencyForPdf(settlement.amountToSubmit)],
+    ...(settlement.walletCash !== null
+      ? [["Bargeld im Portmonee", formatCurrencyForPdf(settlement.walletCash)]]
+      : []),
     [
       "Bereits ausgezahlter Lohn",
       `- ${formatCurrencyForPdf(settlement.paidOutCashWagesTotal)}`,
@@ -121,6 +124,12 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
 
   writer.row("Bargeld gesamt:", formatCurrencyForPdf(settlement.cashRevenue));
   writer.row("Gesamt Abzugeben:", formatCurrencyForPdf(settlement.amountToSubmit));
+  if (settlement.walletCash !== null) {
+    writer.row(
+      "Bargeld Portmonee:",
+      formatCurrencyForPdf(settlement.walletCash),
+    );
+  }
   writer.space(7);
 
   writer.row(

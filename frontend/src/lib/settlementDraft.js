@@ -27,6 +27,7 @@ export function loadSettlementDraft() {
     return {
       cashRevenue: normalizeTextInput(parsedValue.cashRevenue),
       amountToSubmit: normalizeTextInput(parsedValue.amountToSubmit),
+      walletCash: normalizeTextInput(parsedValue.walletCash),
       employees,
       activePreset:
         parsedValue.activePreset === "weekday" ||
@@ -43,6 +44,7 @@ export function loadSettlementDraft() {
 export function saveSettlementDraft({
   cashRevenue,
   amountToSubmit,
+  walletCash,
   employees,
   activePreset,
 }) {
@@ -50,6 +52,7 @@ export function saveSettlementDraft({
     const draft = {
       cashRevenue,
       amountToSubmit,
+      walletCash,
       employees,
       activePreset,
     };

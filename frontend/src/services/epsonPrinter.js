@@ -52,6 +52,9 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
   writer.row("Gesamt Abzugeben:", formatCurrency(settlement.amountToSubmit), {
     bold: true,
   });
+  if (settlement.walletCash !== null) {
+    writer.row("Bargeld Portmonee:", formatCurrency(settlement.walletCash));
+  }
   writer.feed();
 
   writer.row(
