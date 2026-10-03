@@ -49,15 +49,13 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
   const employeeLookup = new Map(employees.map((employee) => [employee.id, employee]));
 
   writer.separator();
-  writer.center("TAGESABRECHNUNG", { bold: true });
+  writer.center("TAGESABRECHNUNG");
   writer.center(titleDate);
   writer.separator();
   writer.feed();
 
   writer.row("Bargeld gesamt:", formatCurrency(settlement.cashRevenue));
-  writer.row("Gesamt Abzugeben:", formatCurrency(settlement.amountToSubmit), {
-    bold: true,
-  });
+  writer.row("Gesamt Abzugeben:", formatCurrency(settlement.amountToSubmit));
   if (settlement.walletCash !== null) {
     writer.row("Bargeld Portmonee:", formatCurrency(settlement.walletCash));
   }
@@ -83,7 +81,7 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
   settlement.employeeResults.forEach((result, index) => {
     const sourceEmployee = employeeLookup.get(result.id);
 
-    writer.wrap(result.name, { bold: true });
+    writer.wrap(result.name);
     writer.row(
       `${sourceEmployee?.startTime || "--:--"} - ${sourceEmployee?.endTime || "--:--"}`,
       formatHours(result.hours),
@@ -104,9 +102,7 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
   writer.feed();
 
   writer.separator("-");
-  writer.row("Trinkgeld gesamt:", formatCurrency(settlement.totalTips), {
-    bold: true,
-  });
+  writer.row("Trinkgeld gesamt:", formatCurrency(settlement.totalTips));
 
   if (settlement.employeeResults.length > 0) {
     writer.feed();
@@ -148,25 +144,17 @@ function createEposReceiptWriter() {
       api.text(value, { ...options, align: "center" });
     },
     heading(value) {
-      api.text(value, { bold: true });
+      api.text(value);
     },
     importantHeading(value) {
-      api.text(value, {
-        align: "center",
-        bold: true,
-        width: 2,
-        height: 2,
-      });
+      api.text(value, { align: "center" });
     },
     importantResult(label, value) {
-      api.text(formatRow(label, value), {
-        bold: true,
-        height: 2,
-      });
+      api.text(formatRow(label, value));
     },
     row(label, value, options = {}) {
       const indent = " ".repeat(options.indent ?? 0);
-      api.text(formatRow(`${indent}${label}`, value), { bold: options.bold });
+      api.text(formatRow(`${indent}${label}`, value));
     },
     wrap(value, options = {}) {
       wrapText(normalizeText(value), RECEIPT_COLUMNS).forEach((line) => {
@@ -174,12 +162,7 @@ function createEposReceiptWriter() {
       });
     },
     bigAmount(value) {
-      api.text(value, {
-        align: "right",
-        bold: true,
-        width: 2,
-        height: 2,
-      });
+      api.text(value, { align: "right" });
     },
     separator(character = "=") {
       api.text(character.repeat(RECEIPT_COLUMNS));
@@ -211,25 +194,25 @@ function createPlainReceiptWriter() {
           ? text.padStart(RECEIPT_COLUMNS)
           : text;
 
-      lines.push(options.bold ? formattedText.toUpperCase() : formattedText);
+      lines.push(formattedText);
     },
     center(value, options = {}) {
       api.text(value, { ...options, align: "center" });
     },
     heading(value) {
-      api.text(value, { bold: true });
+      api.text(value);
     },
     importantHeading(value) {
       api.separator("-");
-      api.text(value, { align: "center", bold: true });
+      api.text(value, { align: "center" });
       api.separator("-");
     },
     importantResult(label, value) {
-      api.text(formatRow(label, value), { bold: true });
+      api.text(formatRow(label, value));
     },
     row(label, value, options = {}) {
       const indent = " ".repeat(options.indent ?? 0);
-      api.text(formatRow(`${indent}${label}`, value), { bold: options.bold });
+      api.text(formatRow(`${indent}${label}`, value));
     },
     wrap(value, options = {}) {
       wrapText(normalizeText(value), RECEIPT_COLUMNS).forEach((line) => {
@@ -237,7 +220,7 @@ function createPlainReceiptWriter() {
       });
     },
     bigAmount(value) {
-      api.text(value, { align: "right", bold: true });
+      api.text(value, { align: "right" });
     },
     separator(character = "=") {
       api.text(character.repeat(RECEIPT_COLUMNS));
@@ -261,18 +244,6 @@ function createTextElement(value, options) {
 
   if (options.align) {
     attributes.push(`align="${options.align}"`);
-  }
-
-  if (options.bold) {
-    attributes.push('em="true"');
-  }
-
-  if (options.width) {
-    attributes.push(`width="${options.width}"`);
-  }
-
-  if (options.height) {
-    attributes.push(`height="${options.height}"`);
   }
 
   const attributeText = attributes.length > 0 ? ` ${attributes.join(" ")}` : "";
