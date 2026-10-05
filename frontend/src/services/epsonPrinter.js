@@ -106,8 +106,11 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
 
   if (settlement.employeeResults.length > 0) {
     writer.feed();
-    settlement.employeeResults.forEach((result) => {
+    settlement.employeeResults.forEach((result, index) => {
       writer.row(result.name, formatCurrency(result.tip));
+      if (index < settlement.employeeResults.length - 1) {
+        writer.feed();
+      }
     });
   }
 

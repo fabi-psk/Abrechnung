@@ -186,10 +186,13 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
 
   if (settlement.employeeResults.length > 0) {
     writer.space(5);
-    settlement.employeeResults.forEach((result) => {
+    settlement.employeeResults.forEach((result, index) => {
       writer.row(truncateText(result.name, 24), formatCurrencyForPdf(result.tip), {
         size: 8.5,
       });
+      if (index < settlement.employeeResults.length - 1) {
+        writer.space(6);
+      }
     });
   }
 
