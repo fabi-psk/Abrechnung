@@ -23,10 +23,20 @@ export function EmployeeCard({
     ? employee.staffMemberId
     : "";
   const canReceiveCashWage = Boolean(selectedStaffMember?.paidCash);
+  const cardAccentColors = [
+    "#38bdf8",
+    "#a78bfa",
+    "#34d399",
+    "#fbbf24",
+    "#fb7185",
+    "#22d3ee",
+  ];
+  const cardAccentColor = cardAccentColors[index % cardAccentColors.length];
 
   return (
     <article
       className={`employee-card${isDuplicate ? " employee-card-warning" : ""}`}
+      style={{ "--employee-card-accent": cardAccentColor }}
     >
       <div className="employee-card-header">
         <div className="employee-card-title">

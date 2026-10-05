@@ -345,11 +345,18 @@ input.invalid,
 .employee-card {
   display: grid;
   gap: 0.75rem;
+  border-color: var(--employee-card-accent, rgba(229, 199, 151, 0.16));
+  box-shadow:
+    inset 4px 0 0 var(--employee-card-accent, rgba(229, 199, 151, 0.16)),
+    0 18px 48px rgba(0, 0, 0, 0.22);
   padding: 0.85rem;
 }
 
 .employee-card-warning {
-  border-color: rgba(248, 113, 113, 0.5);
+  box-shadow:
+    inset 4px 0 0 var(--employee-card-accent, rgba(229, 199, 151, 0.16)),
+    0 0 0 1px rgba(248, 113, 113, 0.55),
+    0 18px 48px rgba(0, 0, 0, 0.22);
 }
 
 .employee-card-header {

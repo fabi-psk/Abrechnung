@@ -187,9 +187,7 @@ export function createReceiptSettlementPdf({ settlement, employees }) {
   if (settlement.employeeResults.length > 0) {
     writer.space(5);
     settlement.employeeResults.forEach((result) => {
-      writer.wrap(result.name, 8.5);
-      writer.row("Trinkgeld:", formatCurrencyForPdf(result.tip), {
-        indent: 8,
+      writer.row(truncateText(result.name, 24), formatCurrencyForPdf(result.tip), {
         size: 8.5,
       });
     });
@@ -502,8 +500,8 @@ function formatHoursForPdf(value) {
 
 function formatHoursForReceipt(value) {
   return `${new Intl.NumberFormat("de-DE", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value)} Std.`;
 }
 

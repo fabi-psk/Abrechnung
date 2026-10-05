@@ -15,8 +15,8 @@ const euroFormatter = new Intl.NumberFormat("de-DE", {
 });
 
 const hourFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
 });
 
 export function printSettlementReceipt({ settlement, employees }) {
@@ -107,8 +107,7 @@ function writeSettlementReceipt({ settlement, employees, writer }) {
   if (settlement.employeeResults.length > 0) {
     writer.feed();
     settlement.employeeResults.forEach((result) => {
-      writer.wrap(result.name);
-      writer.row("Trinkgeld:", formatCurrency(result.tip), { indent: 2 });
+      writer.row(result.name, formatCurrency(result.tip));
     });
   }
 
